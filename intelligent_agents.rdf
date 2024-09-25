@@ -130,6 +130,14 @@
     
 
 
+    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Acne -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Acne">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Symptoms"/>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Cancer -->
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Cancer">
@@ -153,10 +161,27 @@
     
 
 
+    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Hairloss -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Hairloss">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Symptoms"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#High_Stress -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#High_Stress">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Symptoms"/>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Hormone_Imbalance -->
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Hormone_Imbalance">
         <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Symptoms"/>
+        <untitled-ontology-4:causes rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Hairloss"/>
     </owl:NamedIndividual>
     
 
@@ -177,6 +202,15 @@
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Thyroid_Disease">
         <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Disease"/>
+        <untitled-ontology-4:causes rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Hormone_Imbalance"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Vomiting -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Vomiting">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Symptoms"/>
     </owl:NamedIndividual>
 </rdf:RDF>
 
