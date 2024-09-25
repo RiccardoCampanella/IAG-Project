@@ -51,6 +51,14 @@
     
 
 
+    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Disease -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Disease">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Health"/>
+    </owl:Class>
+    
+
+
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Food -->
 
     <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Food"/>
@@ -77,6 +85,14 @@
     
 
 
+    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Pain -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Pain">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Symptoms"/>
+    </owl:Class>
+    
+
+
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Sport -->
 
     <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Sport"/>
@@ -85,7 +101,9 @@
 
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Symptoms -->
 
-    <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Symptoms"/>
+    <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Symptoms">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Health"/>
+    </owl:Class>
     
 
 
@@ -97,6 +115,14 @@
     ///////////////////////////////////////////////////////////////////////////////////////
      -->
 
+    
+
+
+    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Cancer -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Cancer">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Disease"/>
+    </owl:NamedIndividual>
     
 
 
