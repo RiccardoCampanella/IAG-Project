@@ -65,22 +65,6 @@
     
 
 
-    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#AlcholicBeverages -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#AlcholicBeverages">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Drinks"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Beer -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Beer">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#AlcholicBeverages"/>
-    </owl:Class>
-    
-
-
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Cuisine -->
 
     <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Cuisine"/>
@@ -92,12 +76,6 @@
     <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Disease">
         <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Health"/>
     </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Drinks -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Drinks"/>
     
 
 
@@ -121,17 +99,10 @@
     
 
 
-<<<<<<< Updated upstream
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Individual_Sports -->
 
     <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Individual_Sports">
         <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Sport"/>
-=======
-    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Non-AlcholicBeverages -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Non-AlcholicBeverages">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Drinks"/>
->>>>>>> Stashed changes
     </owl:Class>
     
 
@@ -150,25 +121,10 @@
     
 
 
-<<<<<<< Updated upstream
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Psychological -->
 
     <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Psychological">
         <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Disease"/>
-=======
-    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Soda -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Soda">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Non-AlcholicBeverages"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Spirits -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Spirits">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#AlcholicBeverages"/>
->>>>>>> Stashed changes
     </owl:Class>
     
 
@@ -187,17 +143,10 @@
     
 
 
-<<<<<<< Updated upstream
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Team_Sports -->
 
     <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Team_Sports">
         <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Sport"/>
-=======
-    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Wine -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Wine">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#AlcholicBeverages"/>
->>>>>>> Stashed changes
     </owl:Class>
     
 
@@ -244,7 +193,6 @@
     
 
 
-<<<<<<< Updated upstream
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Hairloss -->
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Hairloss">
@@ -256,11 +204,6 @@
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#High_Stress -->
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#High_Stress">
-=======
-    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Headache -->
-
-    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Headache">
->>>>>>> Stashed changes
         <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Symptoms"/>
     </owl:NamedIndividual>
     
@@ -309,12 +252,6 @@
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Vomiting">
         <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Symptoms"/>
     </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Water -->
-
-    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Water"/>
 </rdf:RDF>
 
 
