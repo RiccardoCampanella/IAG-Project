@@ -121,6 +121,14 @@
     
 
 
+    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Protein -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Protein">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Nutrient"/>
+    </owl:Class>
+    
+
+
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Psychological -->
 
     <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Psychological">
@@ -190,6 +198,14 @@
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Flour -->
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Flour"/>
+    
+
+
+    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Gluten -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Gluten">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Protein"/>
+    </owl:NamedIndividual>
     
 
 
