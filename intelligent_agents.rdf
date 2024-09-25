@@ -121,21 +121,6 @@
     
 
 
-<<<<<<< Updated upstream
-    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Protein -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Protein">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Nutrient"/>
-=======
-    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Physical -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Physical">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Disease"/>
->>>>>>> Stashed changes
-    </owl:Class>
-    
-
-
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Psychological -->
 
     <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Psychological">
@@ -202,25 +187,9 @@
     
 
 
-    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Depression -->
-
-    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Depression">
-        <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Psychological"/>
-    </owl:NamedIndividual>
-    
-
-
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Flour -->
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Flour"/>
-    
-
-
-    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Gluten -->
-
-    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Gluten">
-        <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Protein"/>
-    </owl:NamedIndividual>
     
 
 
@@ -283,6 +252,12 @@
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Vomiting">
         <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Symptoms"/>
     </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#fuxlk -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#fuxlk"/>
 </rdf:RDF>
 
 
