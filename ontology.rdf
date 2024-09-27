@@ -1,0 +1,751 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3/"
+     xml:base="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3/"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+    <owl:Ontology rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Age -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Age">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Personal"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Availability -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Availability">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Environment"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#BodyParts -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#BodyParts">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Sport"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#CaloriesBurned -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#CaloriesBurned">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Sport"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#CertaintyLevel -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#CertaintyLevel">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Source"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Climate -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Climate">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Environment"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#CommonInjuries -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#CommonInjuries">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Sport"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#CookingMethod -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#CookingMethod">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Food"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Cuisine -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Cuisine">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Recipe"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#DietaryPreference -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#DietaryPreference">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Human"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Diseases -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Diseases">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Health"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#EatingConditions -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#EatingConditions">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#HealthConditions"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Environment -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Environment"/>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#External -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#External">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Source"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Food -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Food"/>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#FoodName -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#FoodName">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Food"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Gender -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Gender">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Personal"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Health -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Health"/>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#HealthConditions -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#HealthConditions">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Health"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Human -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Human"/>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Humidity -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Humidity">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Climate"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Ingredients -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Ingredients">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Recipe"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#MovingConditions -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#MovingConditions">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#HealthConditions"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Nutrient -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Nutrient">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Food"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Pain -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Pain">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Symptoms"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Personal -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Personal">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Human"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Quantity -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Quantity">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Ingredients"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Recipe -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Recipe"/>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#RecipeName -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#RecipeName">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Recipe"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Repetitiveness -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Repetitiveness">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Sport"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Season -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Season">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Availability"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Source -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Source"/>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#SourceType -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#SourceType">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Availability"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Sport -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Sport"/>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#SportType -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#SportType">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Sport"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Symptoms -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Symptoms">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Health"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Temperature -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Temperature">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Climate"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Trustworthiness -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Trustworthiness">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Source"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Weather -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Weather">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Climate"/>
+    </owl:Class>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Individuals
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Adult -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Adult">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Age"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#All-year -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#All-year">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Season"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Arm -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Arm">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#BodyParts"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Asian -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Asian">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Cuisine"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Beans -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Beans">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#FoodName"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Boiling -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Boiling">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#CookingMethod"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#BrokenLeg -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#BrokenLeg">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#MovingConditions"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Child -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Child">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Age"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Cold -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Cold">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Temperature"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Concussions -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Concussions">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#CommonInjuries"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Elderly -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Elderly">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Age"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Female -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Female">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Gender"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Healthy -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Healthy"/>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#High -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#High">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Humidity"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#HighCalories -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#HighCalories">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#CaloriesBurned"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#HighCertainty -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#HighCertainty">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#CertaintyLevel"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#HighRepetitive -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#HighRepetitive">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Repetitiveness"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Imported -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Imported">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#SourceType"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#IndividualSports -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#IndividualSports">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#SportType"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Leg -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Leg">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#BodyParts"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Local -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Local">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#SourceType"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Low -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Low">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Humidity"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#LowCalories -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#LowCalories">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#CaloriesBurned"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#LowCertainty -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#LowCertainty">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#CertaintyLevel"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#LowRepetitive -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#LowRepetitive">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Repetitiveness"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Male -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Male">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Gender"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Measles -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Measles">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Diseases"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Mediterranean -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Mediterranean">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Cuisine"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Medium -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Medium">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Humidity"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#MediumCalories -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#MediumCalories">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#CaloriesBurned"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#NotTrustworthy -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#NotTrustworthy">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Trustworthiness"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Peanut -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Peanut"/>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#PeanutAllergy -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#PeanutAllergy">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#EatingConditions"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Potato -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Potato">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Ingredients"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Protein -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Protein">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Nutrient"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Rain -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Rain">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Weather"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Smashed_Potatos -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Smashed_Potatos">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#RecipeName"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Snow -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Snow">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Weather"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Summer-only -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Summer-only">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Season"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Sun -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Sun">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Weather"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#TeamSports -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#TeamSports">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#SportType"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Trustworthy -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Trustworthy">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Trustworthiness"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Unhealthy -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Unhealthy"/>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Vegan -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Vegan">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#DietaryPreference"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Vegetarian -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Vegetarian">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#DietaryPreference"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#VegetarianType -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#VegetarianType"/>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Warm -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Warm">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Temperature"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Winter-only -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Winter-only">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Season"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#book -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#book">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#External"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#headache -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#headache">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Pain"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#muscle_ache -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#muscle_ache">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Pain"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#website -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#website">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#External"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#100grams -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#100grams">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Quantity"/>
+    </owl:NamedIndividual>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 4.5.29.2024-05-13T12:11:03Z) https://github.com/owlcs/owlapi -->
+
