@@ -22,6 +22,12 @@
     
 
 
+    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#burnsCalories -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#burnsCalories"/>
+    
+
+
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#causes -->
 
     <owl:ObjectProperty rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#causes"/>
@@ -67,6 +73,26 @@
     <!-- 
     ///////////////////////////////////////////////////////////////////////////////////////
     //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#averageCaloriesBurnedPerHour -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#averageCaloriesBurnedPerHour">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Sport"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
     // Classes
     //
     ///////////////////////////////////////////////////////////////////////////////////////
@@ -92,6 +118,14 @@
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Food -->
 
     <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Food"/>
+    
+
+
+    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Football -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Football">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Team_Sports"/>
+    </owl:Class>
     
 
 
@@ -200,6 +234,14 @@
     
 
 
+    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Volleyball -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Volleyball">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Team_Sports"/>
+    </owl:Class>
+    
+
+
     <!-- 
     ///////////////////////////////////////////////////////////////////////////////////////
     //
@@ -239,6 +281,15 @@
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Flour -->
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Flour"/>
+    
+
+
+    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Football_Game -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Football_Game">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Football"/>
+        <untitled-ontology-4:averageCaloriesBurnedPerHour rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">600</untitled-ontology-4:averageCaloriesBurnedPerHour>
+    </owl:NamedIndividual>
     
 
 
@@ -301,6 +352,15 @@
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Unhealthy -->
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Unhealthy"/>
+    
+
+
+    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Volleyball_Game -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Volleyball_Game">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Volleyball"/>
+        <untitled-ontology-4:averageCaloriesBurnedPerHour rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">800</untitled-ontology-4:averageCaloriesBurnedPerHour>
+    </owl:NamedIndividual>
 </rdf:RDF>
 
 
