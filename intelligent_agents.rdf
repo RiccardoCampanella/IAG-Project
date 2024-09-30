@@ -250,19 +250,10 @@
     
 
 
-    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Basketball -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Basketball">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Team_Sports"/>
-    </owl:Class>
-    
-
-
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Biking -->
 
     <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Biking">
         <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Sport"/>
-        <hasMoreFrequentMovementsThan rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Basketball"/>
     </owl:Class>
     
 
@@ -293,14 +284,6 @@
     
 
 
-    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Football -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Football">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Team_Sports"/>
-    </owl:Class>
-    
-
-
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Grain -->
 
     <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Grain">
@@ -319,15 +302,6 @@
 
     <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#HealthCondition">
         <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Health"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Healthy -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Healthy">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#States"/>
-        <owl:disjointWith rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Unhealthy"/>
     </owl:Class>
     
 
@@ -387,15 +361,6 @@
     
 
 
-    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Soccer -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Soccer">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Team_Sports"/>
-        <accountsForConcussions rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">0.5</accountsForConcussions>
-    </owl:Class>
-    
-
-
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Spanish -->
 
     <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Spanish">
@@ -426,14 +391,6 @@
     
 
 
-    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Swimming -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Swimming">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Sport"/>
-    </owl:Class>
-    
-
-
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Symptoms -->
 
     <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Symptoms">
@@ -446,22 +403,6 @@
 
     <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Team_Sports">
         <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Sport"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Unhealthy -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Unhealthy">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#States"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Volleyball -->
-
-    <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Volleyball">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Team_Sports"/>
     </owl:Class>
     
 
@@ -493,6 +434,14 @@
     
 
 
+    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Basketball_Game -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Basketball_Game">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Team_Sports"/>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Cancer -->
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Cancer">
@@ -519,7 +468,8 @@
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Football_Game -->
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Football_Game">
-        <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Football"/>
+        <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Team_Sports"/>
+        <untitled-ontology-4:accountsForConcussions rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">0.5</untitled-ontology-4:accountsForConcussions>
         <untitled-ontology-4:averageCaloriesBurnedPerHour rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">600</untitled-ontology-4:averageCaloriesBurnedPerHour>
     </owl:NamedIndividual>
     
@@ -529,6 +479,7 @@
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Healthy">
         <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#States"/>
+        <untitled-ontology-4:averageCaloriesBurnedPerHour>&gt; 500</untitled-ontology-4:averageCaloriesBurnedPerHour>
     </owl:NamedIndividual>
     
 
@@ -570,7 +521,6 @@
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#ItalianC">
         <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Cuisine"/>
-        <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Healthy"/>
     </owl:NamedIndividual>
     
 
@@ -597,8 +547,8 @@
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Pasta">
         <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Grain"/>
-        <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Healthy"/>
         <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Italian"/>
+        <untitled-ontology-4:averageCaloriesBurnedPerHour rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">800</untitled-ontology-4:averageCaloriesBurnedPerHour>
     </owl:NamedIndividual>
     
 
@@ -643,7 +593,7 @@
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Volleyball_Game -->
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Volleyball_Game">
-        <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Volleyball"/>
+        <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Team_Sports"/>
         <untitled-ontology-4:averageCaloriesBurnedPerHour rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">800</untitled-ontology-4:averageCaloriesBurnedPerHour>
     </owl:NamedIndividual>
     
@@ -659,9 +609,6 @@
 
     <rdf:Description rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Running">
         <usesMoreThan rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Legs"/>
-    </rdf:Description>
-    <rdf:Description rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Swimming">
-        <mayLeadTo rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#HeartAttack"/>
     </rdf:Description>
 </rdf:RDF>
 
