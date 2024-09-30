@@ -26,6 +26,8 @@
 
     <owl:ObjectProperty rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Eats">
         <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#People"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Food"/>
     </owl:ObjectProperty>
     
 
@@ -36,15 +38,13 @@
     
 
 
-    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#causes -->
+    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#doesSport -->
 
-    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#causes"/>
-    
-
-
-    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#changes -->
-
-    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#changes"/>
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#doesSport">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#People"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Sport"/>
+    </owl:ObjectProperty>
     
 
 
@@ -451,7 +451,6 @@
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Thyroid_Disease">
         <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Disease"/>
-        <untitled-ontology-4:causes rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Hormone_Imbalance"/>
     </owl:NamedIndividual>
     
 
