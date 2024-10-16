@@ -1,39 +1,76 @@
 from owlready2 import *
 from pprint import pprint
+from groq import Groq
 path = "C:\\Users\\tijme\\Documents\\GitHub\\IAG-Project\\intelligent_agents.rdf"
+protege_path = "C:\\Users\\tijme\\Desktop\\Protege-5.6.4\\jre\\bin\\java.exe"
+
+owlready2.JAVA_EXE = protege_path
+
 
 
 class goal_based_agent:
-  def __init__(self, path="onto_pizza.owl"):
-    self.ontology = get_ontology(path)
+  def __init__(self, path):
+    
+    self.path = path
+    self.ontology = get_ontology(path) # Load the ontology
     self.ontology.load()
-    pprint(list(self.ontology.classes())[0])
+    
+    with self.ontology: # Run the reasoner to obtain the inferences
+      sync_reasoner()
 
-    #self.label_to_class = {ent.label[0]: ent for ent in self.ontology.classes()}
-    #self.label_to_prop = {prop.label[0]: prop for prop in self.ontology.properties()}
+    self.LLM = Groq(  # Initialize communication with the large language model
+    api_key=os.environ.get("GROQ_API_KEY"),
+    )
+    self.model="llama3-8b-8192"
+ 
+  
+    self.state = 'Idle'
+    self.actions = self.get_action_list()
+    self.goals = []
+  
+    self.confidence = 0
+    self.trust = 0
+  
+  def run(self):
+    
 
-    self.class_to_label = {ent:ent.label for ent in self.ontology.classes()}
-    #self.prop_to_label = {prop:prop.label[0] for prop in self.ontology.properties()}
+  def get_action_list(self):
+    action_list = []
+    if self.state == "Idle":
+      action_list.append(self.await_user)
+    
+    return action_list
 
-    pprint(type(list(self.ontology.classes())[0]))
-    list(default_world.sparql("""
-           SELECT ?y
-           { ?x rdfs:label "Healthy" .
-             ?x rdfs:subClassOf* ?y }
-    """))
-    # Run the reasoner to obtain the inferences
-    #with self.ontology:
-     #   sync_reasoner(infer_property_values=True)
-  #def __init__(self):
+  def await_user(self):
+    statement = input("Enter statement...")
+    self.state = "Input Processing"
+    self.statement = statement
+  
+  def simple_query(self):
+    ar1 = self.ontology.Healthy.instances()
+    ar2 = self.ontology.Sport.instances()
+    inte = list(set(ar1).intersection(ar2))
+    print("result", inte[0])
+  
+  
+  def LLM_query(self,LLMQuery):
+    if type(LLMQuery) != str: return "ERROR! LLMQuery should be a string"
+    chat_completion = self.LLM.chat.completions.create(
+    messages=[
+        {
+            "role": "user",
+            "content": LLMQuery,
+        }
+    ],
+    model=self.model,
+    )
 
-
-  x = 1
+    print(chat_completion.choices[0].message.content)
+    pprint(chat_completion)
+    
   #def function_make_query_from_nl():
   
- 
-
   #def function_get_info_ontology():
-  
 
   #def function_get_info_gpt():
 
@@ -42,8 +79,6 @@ class goal_based_agent:
   #def function_make_reccomendation():
 
 
-trust_llm = 6
-trust_ont = 8
-
 
 agent = goal_based_agent(path)
+agent.simple_query()
