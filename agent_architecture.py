@@ -1,85 +1,49 @@
-class AgentState:
-    IDLE = 0
-    INPUT_PROCESSING = 1
-    INFORMATION_GATHERING = 2
-    EVIDENCE_GATHERING = 3
-    REASONING = 4
-    RECOMMENDATION_FORMULATION = 5
-    OUTPUT_GENERATION = 6
-    SELF_EVALUATION = 7
+from owlready2 import *
+from pprint import pprint
+path = "C:\\Users\\tijme\\Documents\\GitHub\\IAG-Project\\intelligent_agents.rdf"
 
-class Goal:
-    def __init__(self, description, applicable_states):
-        self.description = description
-        self.applicable_states = applicable_states
 
-class FakeNewsAgent:
-  def __init__(self):
-      self.state = AgentState.IDLE
-      self.main_goal = "Perfrom fact-checking and provide return statement"
-      self.subgoal = [
-          Goal("Query the ontology to get evidences", AgentState.EVIDENCE_GATHERING),
-          Goal("Retrieve evidences from external source (LLM)", AgentState.EVIDENCE_GATHERING),
-          Goal("Compare and analyze the evidences", AgentState.REASONING),
-          Goal("Compute and analyze evidences", AgentState.REASONING),
-          Goal("Present results to the user")
-      ]
-      self.current_strategy = None
+class goal_based_agent:
+  def __init__(self, path="onto_pizza.owl"):
+    self.ontology = get_ontology(path)
+    self.ontology.load()
+    pprint(list(self.ontology.classes())[0])
 
-  def pursue_goal(self, news_item):
-      self.analyze_item(news_item)
-      while not self.goal_achieved():
-          self.select_strategy()
-          self.execute_strategy()
-          self.evaluate_progress()
-          self.adapt_approach()
-  
-  def analyze_item():
-      # code
-      return 
-  
-  def select_strategy():
-      # code
-      return 
-  
-  def execute_strategy():
-      # code
-      return 
-  
-  def evaluate_strategy():
-      # code 
-      return 
-  
-  def evaluate_progress():
-      # code
-      return 
-  
-  def adapt_approach():
-      # code
-      return 1
-  
-  def goal_achieved():
-      # code
-      return 
-  
-  ### Agent-KnowledgeBase interaction functions
+    #self.label_to_class = {ent.label[0]: ent for ent in self.ontology.classes()}
+    #self.label_to_prop = {prop.label[0]: prop for prop in self.ontology.properties()}
 
-  def function_make_query_from_nl():
-      # code
-      return
+    self.class_to_label = {ent:ent.label for ent in self.ontology.classes()}
+    #self.prop_to_label = {prop:prop.label[0] for prop in self.ontology.properties()}
 
-  def function_get_info_ontology():
-      # code
-      return
+    pprint(type(list(self.ontology.classes())[0]))
+    list(default_world.sparql("""
+           SELECT ?y
+           { ?x rdfs:label "Healthy" .
+             ?x rdfs:subClassOf* ?y }
+    """))
+    # Run the reasoner to obtain the inferences
+    #with self.ontology:
+     #   sync_reasoner(infer_property_values=True)
+  #def __init__(self):
 
-  def function_get_info_gpt():
-      # code
-      return 
 
-  def function_rank_info():
-      # code
-      return 
+  x = 1
+  #def function_make_query_from_nl():
+  
+ 
 
-  def function_make_reccomendation():
-      # code
-      return 
+  #def function_get_info_ontology():
+  
+
+  #def function_get_info_gpt():
+
+  #def function_rank_info():
+
+  #def function_make_reccomendation():
+
+
+trust_llm = 6
+trust_ont = 8
+
+
+agent = goal_based_agent(path)

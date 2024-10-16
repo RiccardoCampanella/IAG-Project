@@ -67,14 +67,6 @@
     
 
 
-    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#accountsForConcussions -->
-
-    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#accountsForConcussions">
-        <rdfs:domain rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Sport"/>
-    </owl:ObjectProperty>
-    
-
-
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#burnsCalories -->
 
     <owl:ObjectProperty rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#burnsCalories"/>
@@ -94,6 +86,7 @@
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#hasCuisine -->
 
     <owl:ObjectProperty rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#hasCuisine">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#TransitiveProperty"/>
         <rdfs:domain rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Food"/>
         <rdfs:range rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Cuisine"/>
     </owl:ObjectProperty>
@@ -218,6 +211,16 @@
     
 
 
+    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#avgCaloriesBurned -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#avgCaloriesBurned">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Sport"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#hasHair -->
 
     <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#hasHair">
@@ -266,7 +269,9 @@
 
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Cuisine -->
 
-    <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Cuisine"/>
+    <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Cuisine">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Recipe"/>
+    </owl:Class>
     
 
 
@@ -311,9 +316,8 @@
     <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Healthy">
         <owl:equivalentClass>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#averageCaloriesBurnedPerHour"/>
-                <owl:minQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">500</owl:minQualifiedCardinality>
-                <owl:onDataRange rdf:resource="http://www.w3.org/2002/07/owl#rational"/>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#avgCaloriesBurned"/>
+                <owl:hasValue>medium</owl:hasValue>
             </owl:Restriction>
         </owl:equivalentClass>
         <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#States"/>
@@ -325,6 +329,12 @@
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Indian -->
 
     <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Indian">
+        <owl:equivalentClass>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#isSpicy"/>
+                <owl:hasValue rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</owl:hasValue>
+            </owl:Restriction>
+        </owl:equivalentClass>
         <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Cuisine"/>
         <owl:disjointWith rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Italian"/>
         <owl:disjointWith rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Spanish"/>
@@ -375,6 +385,12 @@
     
 
 
+    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Recipe -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Recipe"/>
+    
+
+
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Running -->
 
     <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Running">
@@ -394,6 +410,12 @@
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Spicy_Food -->
 
     <owl:Class rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Spicy_Food">
+        <owl:equivalentClass>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#isSpicy"/>
+                <owl:hasValue rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</owl:hasValue>
+            </owl:Restriction>
+        </owl:equivalentClass>
         <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Food"/>
     </owl:Class>
     
@@ -489,6 +511,15 @@
     
 
 
+    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#E_Sports -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#E_Sports">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Individual_Sports"/>
+        <untitled-ontology-4:averageCaloriesBurnedPerHour rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">200</untitled-ontology-4:averageCaloriesBurnedPerHour>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Flour -->
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Flour"/>
@@ -499,8 +530,6 @@
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Football_Game">
         <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Team_Sports"/>
-        <untitled-ontology-4:accountsForConcussions rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">0.5</untitled-ontology-4:accountsForConcussions>
-        <untitled-ontology-4:averageCaloriesBurnedPerHour rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">600</untitled-ontology-4:averageCaloriesBurnedPerHour>
     </owl:NamedIndividual>
     
 
@@ -509,6 +538,15 @@
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#HeartAttack">
         <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#HealthCondition"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Henk -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Henk">
+        <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#People"/>
+        <untitled-ontology-4:Eats rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Cookie"/>
     </owl:NamedIndividual>
     
 
@@ -524,6 +562,7 @@
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Indian_Cuisine">
         <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Cuisine"/>
         <untitled-ontology-4:hasCuisine rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Indian_Cuisine"/>
+        <untitled-ontology-4:isSpicy rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</untitled-ontology-4:isSpicy>
     </owl:NamedIndividual>
     
 
@@ -531,9 +570,7 @@
     <!-- http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Indian_Curry -->
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Indian_Curry">
-        <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Spicy_Food"/>
-        <untitled-ontology-4:hasCuisine rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Indian_Cuisine"/>
-        <untitled-ontology-4:isSpicy rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</untitled-ontology-4:isSpicy>
+        <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Indian"/>
     </owl:NamedIndividual>
     
 
@@ -609,7 +646,7 @@
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Volleyball_Game">
         <rdf:type rdf:resource="http://www.semanticweb.org/lucmi/ontologies/2024/8/untitled-ontology-4#Team_Sports"/>
-        <untitled-ontology-4:averageCaloriesBurnedPerHour rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">800</untitled-ontology-4:averageCaloriesBurnedPerHour>
+        <untitled-ontology-4:avgCaloriesBurned>medium</untitled-ontology-4:avgCaloriesBurned>
     </owl:NamedIndividual>
     
 
