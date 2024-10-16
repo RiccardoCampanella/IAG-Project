@@ -1,4 +1,3 @@
-from owlready2 import *
 
 
 from owlready2 import * 
