@@ -52,7 +52,8 @@ class FakeNewsAgent:
     def activate_relevant_goals(self):
         for goal in self.subgoals:
             goal.is_active = goal.conditions.get(self.state-1) == self.state
-
+   
+    # a goal can be suspended (inactive) if it was active 
     def drop_goal(self):
         for goal in self.subgoals:
             goal.is_active = not (goal.conditions.get(self.state-1) == self.state)
@@ -63,7 +64,7 @@ class FakeNewsAgent:
                 if state == self.state:
                     self.adopt_plan(goal)
 
-    def pursue_goal(self, news_item):
+    def pursue_main_goal(self, news_item):
         self.analyze_item(news_item)
         while not self.goal_achieved():
             self.select_plan()
@@ -81,14 +82,14 @@ class FakeNewsAgent:
             if goal.is_achieved:
                 self.drop_goal(goal)
 
-    # procedutal plan is a sequence of consequtive applicable states for that goal
+    # procedural plan is a sequence of consecutive applicable states for that goal
     def generate_procedural_plan(self):
         for goal in self.get_active_goals():
             # get the state IDs in the list associated to the goal 
             return
 
     def adopt_plan():
-        
+        # iterate over the ordered list of states
         return
 
     def drop_plan(self):
@@ -97,26 +98,27 @@ class FakeNewsAgent:
             # if goal.plan == 
         return
 
-    def analyze_item():
-        # code
-        return 
+    def analyze_item(self):
+        self.get_user_info()
+        # other instructions
 
     def select_plan(self):
         self.current_plan = self.generate_procedural_plan()
 
-    def evaluate_plan():
-        # code 
+    def evaluate_plan(self):
+        # 
         return 
 
     def evaluate_progress():
-        
+        # how distant are we from the final output state
         return 
 
-    def adapt_approach():
-        # code
+    def adapt_approach(self):
+        # transition ot self-evaluation state and improve how future plans are genberated based on past experience
+        self.evaluate_plan()
         return 
 
-    ### Knowledge Base Reasoning
+    ### Knowledge Base Interaction and Reasoning
 
     def function_make_query_from_nl():
         # code
@@ -137,3 +139,9 @@ class FakeNewsAgent:
     def function_make_reccomendation():
         # code
         return 
+
+    ### Environment Interactions
+    
+    def get_user_info(self):
+        # code
+        return
