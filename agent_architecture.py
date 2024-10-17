@@ -1,18 +1,19 @@
 from owlready2 import *
 from pprint import pprint
 from groq import Groq
+import yaml
 import os
-path = "C:\\Users\\tijme\\Documents\\GitHub\\IAG-Project\\intelligent_agents.rdf"
-protege_path = "C:\\Users\\tijme\\Desktop\\Protege-5.6.4\\jre\\bin\\java.exe"
 
+# Load the config.yaml file
+with open("config.yaml", "r") as file:
+    config = yaml.safe_load(file)
 
-owlready2.JAVA_EXE = protege_path
+owlready2.JAVA_EXE = config['paths']['protege_path']
 
 class goal_based_agent:
-  def __init__(self, path):
-    
-    self.path = path
-    self.ontology = get_ontology(path) # Load the ontology
+  def __init__(self):
+    self.path = config['paths']['ontology_local_path']
+    self.ontology = get_ontology(self.path) # Load the ontology
     self.ontology.load()
     
     with self.ontology: # Run the reasoner to obtain the inferences
@@ -21,8 +22,7 @@ class goal_based_agent:
     self.LLM = Groq(  # Initialize communication with the large language model
     api_key=os.environ.get("GROQ_API_KEY"),
     )
-    self.model="llama3-8b-8192"
- 
+    self.model = config['model_specs']['model_type'] 
     self.statement = None
     self.state = 'Idle'
     self.actions = []
@@ -43,7 +43,6 @@ class goal_based_agent:
       self.state_transition()
       self.get_action_list()
       
-
   def state_transition(self):
     if self.state == "Idle" and self.statement != None:
       self.state = "Input Processing"
@@ -72,8 +71,6 @@ class goal_based_agent:
         "focusing on evidence without speculation, and structure the response as evidence for or against the statement."
     
     self.boolLLMQuery = True
-    
-
 
   def await_user(self):
     if self.statement != None: return 
@@ -81,14 +78,12 @@ class goal_based_agent:
     self.state = "Input Processing"
     self.statement = statement
     
-  
   def simple_query(self):
     ar1 = self.ontology.Healthy.instances()
     ar2 = self.ontology.Sport.instances()
     inte = list(set(ar1).intersection(ar2))
     print("result", inte[0])
     self.state = "End"
-  
   
   def LLM_query(self,LLMQuery):
     if type(LLMQuery) != str: return "ERROR! LLMQuery should be a string"
@@ -118,6 +113,6 @@ class goal_based_agent:
 
 
 
-agent = goal_based_agent(path)
+agent = goal_based_agent()
 agent.statement = 'Does eating spicy food cause hair loss'
 agent.run()
