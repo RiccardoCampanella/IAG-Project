@@ -2,6 +2,8 @@ import numpy as np
 from enum import Enum
 from typing import Dict, List, Set, Optional
 from dataclasses import dataclass
+from ontology_service import OntologyService
+from llm_service import LLMService
 import logging
 
 class AgentState(Enum):
@@ -45,10 +47,10 @@ class Goal:
         return hash(self.description)
 
 class FakeNewsAgent:
-    def __init__(self, ontology_client=None, llm_client=None):
+    def __init__(self, ontology_service: OntologyService=None, llm_service: LLMService=None):
         self.state = AgentState.IDLE
-        self.ontology_client = ontology_client
-        self.llm_client = llm_client
+        self.ontology_service = ontology_service
+        self.llm_service = llm_service
         self.logger = logging.getLogger(__name__)
         self.analysis_results = {}
         self.current_news_item = None
@@ -223,6 +225,7 @@ class FakeNewsAgent:
         else:
             raise ValueError(f"No action defined for state {state}")
 
+
     ### Implementation of state-specific actions
 
     def process_input(self) -> None:
@@ -291,18 +294,19 @@ class FakeNewsAgent:
             'areas_for_improvement': self.identify_improvements()
         }
 
+
     ### Helper methods
 
     def query_ontology(self) -> dict:
         """Query the ontology for relevant information."""
-        if self.ontology_client:
-            return self.ontology_client.query(self.current_news_item)
+        if self.ontology_service:
+            return self.ontology_service.query(self.current_news_item)
         return {}
-
+    
     def query_llm(self) -> dict:
         """Query the LLM for analysis."""
-        if self.llm_client:
-            return self.llm_client.analyze(self.current_news_item)
+        if self.llm_service:
+            return self.llm_service.analyze(self.current_news_item)
         return {}
 
     def rank_evidence(self) -> dict:
@@ -342,7 +346,9 @@ class FakeNewsAgent:
         # Implement improvement identification
         return []
 
+
     ### Agent Test method
+
     def analyze_news_item(self, news_item: dict) -> dict:
         """Main method to analyze a news item."""
         self.current_news_item = news_item
