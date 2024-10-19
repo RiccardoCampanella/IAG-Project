@@ -323,9 +323,9 @@ class FakeNewsAgent:
         # Implement recommendation generation logic
         return {'verdict': '', 'explanation': '', 'supporting_evidence': []}
 
-    def calculate_trust_score(self, w_ontology, ontology_score, w_llm, llm_score) -> float:
+    def calculate_trust_score(self) -> float:
         """Calculate the confidence score of the analysis."""
-        return (w_ontology * ontology_score + w_llm * llm_score) / (w_ontology + w_llm)
+        return (self.w_ontology * self.ontology_score + self.w_llm * self.llm_score) / (self.w_ontology + self.w_llm)
 
     def calculate_confidence_score(self) -> float:
         """Calculate the confidence score of the analysis."""
