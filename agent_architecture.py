@@ -3,11 +3,14 @@ from pprint import pprint
 from groq import Groq
 import yaml
 import os
+import re
 
 # Load the config.yaml file
 with open("config.yaml", "r") as file:
     config = yaml.safe_load(file)
 
+# Intitialize global variables
+os.environ["GROQ_API_KEY"] = config['keys']['llm_api_key']
 owlready2.JAVA_EXE = config['paths']['protege_path']
 
 class goal_based_agent:
@@ -23,6 +26,7 @@ class goal_based_agent:
     api_key=os.environ.get("GROQ_API_KEY"),
     )
     self.model = config['model_specs']['model_type'] 
+    self.model_temperature = config['model_specs']['temperature'] 
     self.statement = None
     self.state = 'Idle'
     self.actions = []
@@ -33,20 +37,24 @@ class goal_based_agent:
     self.trust = 0
     self.boolLLMQuery = False
     self.boolOntologyQuery = True
+    self.lstLLMQueries = []
   
   def run(self):
-    
     while self.actions != []:
       print([action.__name__ for action in self.actions],self.state)
       self.actions[0]()
       self.actions.pop(0)
-      self.state_transition()
-      self.get_action_list()
+      if self.actions == []:
+        self.get_action_list()
+      self.state_transition()    
       
   def state_transition(self):
+    print(self.lstLLMQueries != [])
     if self.state == "Idle" and self.statement != None:
       self.state = "Input Processing"
-    elif self.state == "Input Processing" and self.boolLLMQuery == True and self.boolOntologyQuery == True:
+    elif self.state == "Input Processing" and self.lstLLMQueries != []:
+      self.state = "Information Gathering"  
+    elif self.state == "Information Gathering":
       self.state = "End"
     
   def get_action_list(self):
@@ -56,36 +64,64 @@ class goal_based_agent:
     elif self.state == "Input Processing":
       action_list.append(self.simple_query)
       action_list.append(self.get_LLM_queries)
+    elif self.state == "Information Gathering":
+      action_list.append(self.get_LLM_arguments)
     elif self.state == "End":
       return
     self.actions = action_list
 
   def get_LLM_queries(self):
-    LLMprompt = 'Can you find 5 different ways to ask the following statement as a question: ' + \
-    self.statement
-
-    response = self.LLM_query(LLMprompt)
+    LLMprompt = 'Can you provide four different ways to turn the statement ' + \
+      self.statement + \
+      ' into questions, ensuring two of these are negations? Keep the answer concise.'
     
-    self.lstLLMQueries = "Present arguments concisely, focusing on evidence without speculation, " + \
-      "and structure the response as evidence for or against the statement.Present arguments concisely, " + \
-        "focusing on evidence without speculation, and structure the response as evidence for or against the statement."
+    LLMresponse = self.LLM_query(LLMprompt)
+    lstQuestions = self.extract_text(LLMresponse)
     
-    self.boolLLMQuery = True
+    for strQuestion in lstQuestions:
 
-  def await_user(self):
+      llmQuery = strQuestion + \
+        " Present arguments concisely, " + \
+        "focusing on evidence without speculation, " + \
+        "and structure the response as evidence for or against the statement. " + \
+        "Please give every statement a score from 1-10 on how reliable it is." 
+      
+      self.lstLLMQueries.append(llmQuery)
+    print(self.lstLLMQueries)
+    self.boolGetLLMQueries = True
+
+  def get_LLM_arguments(self):
+    LLMresponse = self.LLM_query(self.lstLLMQueries[0])
+    self.lstArguments = self.extract_text(LLMresponse)
+    print(self.lstArguments)
+   
+  def extract_text(self, text): #Function by chatgpt to parse the query response.
+      # Split the text into lines
+      lines = text.split("\n")
+      
+      # Extract questions, removing additional text or brackets
+      questions = []
+      for line in lines:
+          # Check if line contains a question
+          if '. ' in line:
+              # Extract the question part before any bracketed text
+              question = re.sub(r"\s*\(.*?\)", "", line.split('. ', 1)[1]).strip()
+              questions.append(question)
+      return questions
+
+  def await_user(self): # Wait untill the user inputs a statement. This switches agent state to 'Input Processing'
     if self.statement != None: return 
     statement = input("Enter statement...")
-    self.state = "Input Processing"
     self.statement = statement
     
-  def simple_query(self):
+  def simple_query(self): # Simple query for testing
     ar1 = self.ontology.Healthy.instances()
     ar2 = self.ontology.Sport.instances()
     inte = list(set(ar1).intersection(ar2))
     print("result", inte[0])
-    self.state = "End"
+    
   
-  def LLM_query(self,LLMQuery):
+  def LLM_query(self,LLMQuery): # Returns the answer to a given prompt from the LLM
     if type(LLMQuery) != str: return "ERROR! LLMQuery should be a string"
     chat_completion = self.LLM.chat.completions.create(
     messages=[
@@ -95,22 +131,42 @@ class goal_based_agent:
         }
     ],
     model=self.model,
-    temperature=0.1,
+    temperature=self.model_temperature,
     )
-
+    #TODO remove debug print
     print(chat_completion.choices[0].message.content)
     return chat_completion.choices[0].message.content
+ 
+  """ # Pseudo code for potential ontology query 
+
+  statement: 'Does eating spicy food cause hair loss'
+
+  structure: (Domain Action Range) implies (Domain attribute Range2)
+    ObjProperty = eating
+    Range = spicy food
+    Domain = ??
+    Range2 = hair loss
+
     
-  #def function_make_query_from_nl():
+  statement: swimming is good for your heart
+
+  structure: (Domain ObjProperty Range) implies (Domain objProperty Range2)
+
+  ObjProperty = ??
+  Range = swimming
+  Domain = ??
   
-  #def function_get_info_ontology():
+  Range2 = Heart
 
-  #def function_get_info_gpt():
 
-  #def function_rank_info():
+  def find_object_properties():
+    
 
-  #def function_make_reccomendation():
 
+  
+  
+  
+  """
 
 
 agent = goal_based_agent()
