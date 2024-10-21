@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from ontology_service import OntologyService
 from llm_service import LLMService
 import logging
+from arguments_examples import argument_examples
 
 class AgentState(Enum):
     IDLE = 0
@@ -58,8 +59,8 @@ class FakeNewsAgent:
         self.ontology_service = ontology_service
         self.llm_service = llm_service
         self.logger = logging.getLogger(__name__)
-        self.analysis_results = {}
-        self.current_news_item = None
+        self.analysis_results = argument_examples #TODO remove these variables when done with testing.
+        self.current_news_item = "Eating spicy food causes hair loss"
         self.transition_from_state = np.full(len(AgentState), False)
         self.transition_from_state[0] = True
         self.initialise_goals()
