@@ -1,9 +1,3 @@
-from owlready2 import *
-from pprint import pprint
-from groq import Groq
-import yaml
-import os
-import re
 
 # Load the config.yaml file
 with open("config.yaml", "r") as file:
