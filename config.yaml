@@ -10,5 +10,6 @@ paths :
 # LLM specs
 model_specs:
   model_type : "llama3-8b-8192"
+  temperature : 0.2
 
 # Ontology specs

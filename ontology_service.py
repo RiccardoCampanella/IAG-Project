@@ -1,4 +1,4 @@
-class LLMService:
+class OntologyService:
     """Service for handling all LLM-related operations."""
 
     def __init__(self, client):

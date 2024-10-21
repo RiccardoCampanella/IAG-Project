@@ -55,6 +55,7 @@ class FakeNewsAgent:
         self.analysis_results = {}
         self.current_news_item = None
         self.transition_from_state = np.full(len(AgentState), False)
+        self.transition_from_state[0] = True
         self.initialise_goals()
 
     def initialise_goals(self):
@@ -154,6 +155,7 @@ class FakeNewsAgent:
         if self.transition_from_state[self.state.value]:
             self.logger.info(f"Transitioning from {self.state} to {new_state}")
             self.state = new_state
+            print(self.state)
             self.activate_relevant_goals()
             self.adopt_active_goals()
         else:
@@ -183,8 +185,8 @@ class FakeNewsAgent:
         current_state_id = self.state.value
         for goal in self.subgoals:
             if goal.conditions:
-                for prior_state in goal.conditions.keys:
-                    if current_state_id - 1 in goal.conditions[prior_state]:
+                for prior_state in goal.conditions.keys():
+                    if current_state_id - 1 == goal.conditions[prior_state]:
                         goal.is_active = goal.conditions[current_state_id - 1] == self.state
             else:
                 goal.is_active = True # can be activated with no conditions
@@ -242,6 +244,7 @@ class FakeNewsAgent:
             'content_length': len(self.current_news_item['content']),
             'source': self.current_news_item['source']
         }
+        self.transition_to_state(AgentState.INFORMATION_GATHERING)
 
     def gather_information(self) -> None:
         """Gather information from both ontology and LLM."""
@@ -306,7 +309,7 @@ class FakeNewsAgent:
     def query_llm(self) -> dict:
         """Query the LLM for analysis."""
         if self.llm_service:
-            return self.llm_service.analyze(self.current_news_item)
+            return self.llm_service.query(self.current_news_item)
         return {}
 
     def rank_evidence(self) -> dict:
@@ -349,17 +352,18 @@ class FakeNewsAgent:
 
     ### Agent Test method
 
-    def analyze_news_item(self, news_item: dict) -> dict:
+    def analyze_news_item(self, news_item: str) -> dict:
         """Main method to analyze a news item."""
         self.current_news_item = news_item
         self.analysis_results = {}
         
         try:
             self.transition_to_state(AgentState.INPUT_PROCESSING)
-
+            
             # iterate over states and stop at the end of the cycle
             while self.state != AgentState.IDLE:
                 # get active goals
+                print(self.state)
                 active_goals = self.get_active_goals()
                 
                 # re-initialise goals in case of fail
@@ -383,5 +387,5 @@ class FakeNewsAgent:
             raise
 
 if __name__ == '__main__':
-    FNA = FakeNewsAgent()
-    FNA.analyze_news_item()
+    FNA = FakeNewsAgent(OntologyService, LLMService)
+    FNA.analyze_news_item('Does eating spicy food cause hair loss')
