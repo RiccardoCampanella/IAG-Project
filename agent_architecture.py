@@ -1,3 +1,9 @@
+from owlready2 import * 
+import owlready2
+import yaml
+from groq import Groq
+import os
+from functools import reduce
 
 # Load the config.yaml file
 with open("config.yaml", "r") as file:
@@ -6,16 +12,19 @@ with open("config.yaml", "r") as file:
 # Intitialize global variables
 os.environ["GROQ_API_KEY"] = config['keys']['llm_api_key']
 owlready2.JAVA_EXE = config['paths']['protege_path']
-
+#owlready2.JAVA_EXE = r"C:\Users\lucmi\Downloads\Protege-5.6.4-win\Protege-5.6.4\jre\bin\java.exe"
 class goal_based_agent:
   def __init__(self):
     self.path = config['paths']['ontology_local_path']
-    self.ontology = get_ontology(self.path) # Load the ontology
-    self.ontology.load()
+    #self.ontology = get_ontology(r"C:\Users\lucmi\Documents\Opdrachten\IAG-Project\intelligent_agents.rdf").load()
+    self.ontology = get_ontology(self.path).load() # Load the ontology
+    #self.ontology.load()
     
     with self.ontology: # Run the reasoner to obtain the inferences
       sync_reasoner()
-
+    #query = [["class", "Healthy"], ["class", "Sport"]]
+    query = [["objectproperty", ["Eats", "Cookie"]]]
+    self.reasoning(query)
     self.LLM = Groq(  # Initialize communication with the large language model
     api_key=os.environ.get("GROQ_API_KEY"),
     )
@@ -83,7 +92,33 @@ class goal_based_agent:
       self.lstLLMQueries.append(llmQuery)
     print(self.lstLLMQueries)
     self.boolGetLLMQueries = True
-
+  
+  def reasoning(self, arguments, target = None, forall = None):
+      instances_list = []
+      for datatype, argument in arguments:
+          if datatype == "class":
+              some_class = self.ontology.search_one(iri="*#" + argument)
+              instances_list.append([str(x) for x in some_class.instances()])
+          if datatype == "objectproperty":
+              ontoproperty = self.ontology.search_one(iri="*#" + argument[0])
+              #print(ontoproperty)
+                # Get the instance 'cancer' (replace with the actual name if different)
+              ontoinstance = self.ontology.search_one(iri="*#" + argument[1])
+              #objectlist = []
+              for instance in self.ontology.individuals():
+                  if ontoproperty in instance.get_properties():
+                      #print('yeah')
+                      for sub, obj in ontoproperty.get_relations():
+                          #print(sub, obj)
+                          if sub == instance and obj == ontoinstance:
+                              #print("indsat", instance)
+                              instances_list.append([instance])
+      print("fdjfhd", instances_list)
+      intersection = list(reduce(set.intersection, map(set, instances_list)))
+      print(intersection)
+      if target is not None and target in intersection:
+          return True
+      
   def get_LLM_arguments(self):
     LLMresponse = self.LLM_query(self.lstLLMQueries[0])
     self.lstArguments = self.extract_text(LLMresponse)
