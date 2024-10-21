@@ -48,6 +48,12 @@ class Goal:
 
 class FakeNewsAgent:
     def __init__(self, ontology_service: OntologyService=None, llm_service: LLMService=None):
+        # Configure the logger
+        logging.basicConfig(
+            level=logging.DEBUG,  # Set the logging level to DEBUG to capture all types of log messages
+            format='%(asctime)s - %(levelname)s - %(message)s',  # Specify the log message format
+            handlers=[logging.StreamHandler()]  # Output log messages to the console
+        )
         self.state = AgentState.IDLE
         self.ontology_service = ontology_service
         self.llm_service = llm_service
@@ -152,6 +158,7 @@ class FakeNewsAgent:
     # transitioning once the prior state conditions are satisfied 
     def transition_to_state(self, new_state: AgentState) -> None:
         """Transition to a new state and handle related goal updates."""
+        logging.debug(f"Transitioning from {self.state} to {new_state}")
         if self.transition_from_state[self.state.value]:
             self.logger.info(f"Transitioning from {self.state} to {new_state}")
             self.state = new_state
@@ -164,6 +171,7 @@ class FakeNewsAgent:
     # transition to the next state specified by the state values!
     def procedural_state_transition(self) -> None:
         """Advance to the next logical state in the processing pipeline."""
+        logging.debug("procedural_state_transition, ")
         state_order = [state for state in AgentState]
         current_index = state_order.index(self.state)
         if current_index < len(state_order) - 1:
@@ -172,16 +180,19 @@ class FakeNewsAgent:
     # goals with is_active set to true
     def get_active_goals(self) -> List[Goal]:
         """Return currently active goals."""
+        logging.debug(f"get_active_goals, state: {self.state}, goals active priorto activation: {self.get_active_goals()}")
         return [goal for goal in self.subgoals if goal.is_active]
     
     # goals excluded from active goals
     def get_suspended_goals(self) -> List[Goal]:
         """Return currently suspended goals."""
+        logging.debug(f"get_suspended_goals(), state: {self.state}, goals active : {self.get_active_goals()}")
         return [goal for goal in self.subgoals if not goal.is_active]
 
     # A goal is activated when the current state is included in the goals states 
     def activate_relevant_goals(self) -> None:
         """Activate goals relevant to the current state."""
+        logging.debug(f"activate_relevant_goals, state: {self.state}, goals active : {self.get_active_goals()}")
         current_state_id = self.state.value
         for goal in self.subgoals:
             if goal.conditions:
@@ -193,6 +204,7 @@ class FakeNewsAgent:
 
     # execute active goal(s)'s plan  
     def adopt_active_goals(self) -> None:
+        logging.debug(f"adopt_ativate_goals, state: {self.state}, goals active : {self.get_active_goals()}")
         """Adopt plans for active goals."""
         for goal in self.get_active_goals():
             if goal.plan:
@@ -201,6 +213,7 @@ class FakeNewsAgent:
     # the next state is determined by the current goal(s)'s plan
     def execute_plan(self, plan: Plan) -> None:
         """Execute the steps in a plan."""
+        logging.debug(f"execute_plan, {self.state}, goals active : {self.get_active_goals()}")
         while (next_state := plan.next_step()) is not None:
             try:
                 self.execute_state_action(next_state)
@@ -212,6 +225,7 @@ class FakeNewsAgent:
     # state-action mapping
     def execute_state_action(self, state: AgentState) -> None:
         """Execute the appropriate action for the given state."""
+        logging.debug(f"execute_state_state, state: {self.state}, goals active : {self.get_active_goals()}")
         action_map = {
             AgentState.INPUT_PROCESSING : self.process_input,
             AgentState.INFORMATION_GATHERING : self.gather_information,
@@ -232,6 +246,7 @@ class FakeNewsAgent:
 
     def process_input(self) -> None:
         """Validate and process the input news item."""
+        logging.debug(f"process_input, state : {self.state}, goals active : {self.get_active_goals()}")
         if not self.current_news_item:
             raise ValueError("No news item to process")
         
@@ -248,6 +263,7 @@ class FakeNewsAgent:
 
     def gather_information(self) -> None:
         """Gather information from both ontology and LLM."""
+        logging.debug(f"gather_information, state : {self.state}, goals active : {self.get_active_goals()}")
         ontology_results = self.query_ontology()
         llm_results = self.query_llm()
         
@@ -258,6 +274,7 @@ class FakeNewsAgent:
 
     def analyze_evidence(self) -> None:
         """Analyze gathered evidence."""
+        logging.debug(f"analyze_evidence, state : {self.state}, goals active : {self.get_active_goals()}")
         if 'gathered_info' not in self.analysis_results:
             raise ValueError("No gathered information to analyze")
         
@@ -265,6 +282,7 @@ class FakeNewsAgent:
 
     def perform_reasoning(self) -> None:
         """Perform reasoning based on analyzed evidence."""
+        logging.debug(f"perform_reasoning, state : {self.state}, goals active : {self.get_active_goals()}")
         if 'evidence_analysis' not in self.analysis_results:
             raise ValueError("No analyzed evidence for reasoning")
         
@@ -272,6 +290,7 @@ class FakeNewsAgent:
 
     def formulate_recommendation(self) -> None:
         """Formulate a recommendation based on reasoning."""
+        logging.debug(f"formulate_recomendation, state: {self.state}, goals active : {self.get_active_goals()}")
         if 'reasoning_results' not in self.analysis_results:
             raise ValueError("No reasoning results for recommendation")
         
@@ -279,6 +298,7 @@ class FakeNewsAgent:
 
     def generate_output(self) -> None:
         """Generate the final output."""
+        logging.debug(f"generate_output, {self.state}, goals active : {self.get_active_goals()}")
         if 'recommendation' not in self.analysis_results:
             raise ValueError("No recommendation to output")
         
@@ -291,6 +311,7 @@ class FakeNewsAgent:
 
     def perform_self_evaluation(self) -> None:
         """Perform self-evaluation of the analysis process."""
+        logging.debug(f"perfrom_self_evaluation, state : {self.state}, goals active : {self.get_active_goals()}")
         self.analysis_results['evaluation'] = {
             'process_complete': bool(self.analysis_results.get('final_output')),
             'confidence_level': self.calculate_confidence_score(),
