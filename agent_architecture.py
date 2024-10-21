@@ -1,9 +1,9 @@
-from owlready2 import *
-from pprint import pprint
-from groq import Groq
+from owlready2 import * 
+import owlready2
 import yaml
+from groq import Groq
 import os
-import re
+from functools import reduce
 
 # Load the config.yaml file
 with open("config.yaml", "r") as file:
@@ -12,16 +12,19 @@ with open("config.yaml", "r") as file:
 # Intitialize global variables
 os.environ["GROQ_API_KEY"] = config['keys']['llm_api_key']
 owlready2.JAVA_EXE = config['paths']['protege_path']
-
+#owlready2.JAVA_EXE = r"C:\Users\lucmi\Downloads\Protege-5.6.4-win\Protege-5.6.4\jre\bin\java.exe"
 class goal_based_agent:
   def __init__(self):
     self.path = config['paths']['ontology_local_path']
-    self.ontology = get_ontology(self.path) # Load the ontology
-    self.ontology.load()
+    #self.ontology = get_ontology(r"C:\Users\lucmi\Documents\Opdrachten\IAG-Project\intelligent_agents.rdf").load()
+    self.ontology = get_ontology(self.path).load() # Load the ontology
+    #self.ontology.load()
     
     with self.ontology: # Run the reasoner to obtain the inferences
       sync_reasoner()
-
+    #query = [["class", "Healthy"], ["class", "Sport"]]
+    query = [["objectproperty", ["Eats", "Cookie"]]]
+    self.reasoning(query)
     self.LLM = Groq(  # Initialize communication with the large language model
     api_key=os.environ.get("GROQ_API_KEY"),
     )
@@ -70,7 +73,71 @@ class goal_based_agent:
       return
     self.actions = action_list
 
+  def get_LLM_queries(self):
+    LLMprompt = 'Can you provide four different ways to turn the statement ' + \
+      self.statement + \
+      ' into questions, ensuring two of these are negations? Keep the answer concise.'
+    
+    LLMresponse = self.LLM_query(LLMprompt)
+    lstQuestions = self.extract_text(LLMresponse)
+    
+    for strQuestion in lstQuestions:
+
+      llmQuery = strQuestion + \
+        " Present arguments concisely, " + \
+        "focusing on evidence without speculation, " + \
+        "and structure the response as evidence for or against the statement. " + \
+        "Please give every statement a score from 1-10 on how reliable it is." 
+      
+      self.lstLLMQueries.append(llmQuery)
+    print(self.lstLLMQueries)
+    self.boolGetLLMQueries = True
   
+  def reasoning(self, arguments, target = None, forall = None):
+      instances_list = []
+      for datatype, argument in arguments:
+          if datatype == "class":
+              some_class = self.ontology.search_one(iri="*#" + argument)
+              instances_list.append([str(x) for x in some_class.instances()])
+          if datatype == "objectproperty":
+              ontoproperty = self.ontology.search_one(iri="*#" + argument[0])
+              #print(ontoproperty)
+                # Get the instance 'cancer' (replace with the actual name if different)
+              ontoinstance = self.ontology.search_one(iri="*#" + argument[1])
+              #objectlist = []
+              for instance in self.ontology.individuals():
+                  if ontoproperty in instance.get_properties():
+                      #print('yeah')
+                      for sub, obj in ontoproperty.get_relations():
+                          #print(sub, obj)
+                          if sub == instance and obj == ontoinstance:
+                              #print("indsat", instance)
+                              instances_list.append([instance])
+      print("fdjfhd", instances_list)
+      intersection = list(reduce(set.intersection, map(set, instances_list)))
+      print(intersection)
+      if target is not None and target in intersection:
+          return True
+      
+  def get_LLM_arguments(self):
+    LLMresponse = self.LLM_query(self.lstLLMQueries[0])
+    self.lstArguments = self.extract_text(LLMresponse)
+    print(self.lstArguments)
+   
+  def extract_text(self, text): #Function by chatgpt to parse the query response.
+      # Split the text into lines
+      lines = text.split("\n")
+      
+      # Extract questions, removing additional text or brackets
+      questions = []
+      for line in lines:
+          # Check if line contains a question
+          if '. ' in line:
+              # Extract the question part before any bracketed text
+              question = re.sub(r"\s*\(.*?\)", "", line.split('. ', 1)[1]).strip()
+              questions.append(question)
+      return questions
+
   def await_user(self): # Wait untill the user inputs a statement. This switches agent state to 'Input Processing'
     if self.statement != None: return 
     statement = input("Enter statement...")
