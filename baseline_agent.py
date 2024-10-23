@@ -86,7 +86,6 @@ class FakeNewsAgent:
             AgentState.EVIDENCE_ANALYSIS,
             AgentState.REASONING,
             AgentState.RECOMMENDATION_FORMULATION,
-            AgentState.OUTPUT_GENERATION,
             AgentState.SELF_EVALUATION,
             AgentState.LEARNING,
             AgentState.ERROR
@@ -115,19 +114,9 @@ class FakeNewsAgent:
                 plan=Plan(steps=[AgentState.EVIDENCE_ANALYSIS])
             ),
             Goal(
-                description="Compute Trust and Confidence Score",
-                conditions={AgentState.EVIDENCE_ANALYSIS : AgentState.REASONING},
-                plan=Plan(steps=[AgentState.REASONING])
-            ),
-            Goal(
                 description="Formulate recommendation",
-                conditions={AgentState.REASONING : AgentState.RECOMMENDATION_FORMULATION},
+                conditions={AgentState.EVIDENCE_ANALYSIS : AgentState.RECOMMENDATION_FORMULATION},
                 plan=Plan(steps=[AgentState.RECOMMENDATION_FORMULATION])
-            ),
-            Goal(
-                description="Present result to the user",
-                conditions={AgentState.RECOMMENDATION_FORMULATION : AgentState.OUTPUT_GENERATION},
-                plan=Plan(steps=[AgentState.OUTPUT_GENERATION])
             ),
             # Additional subgoals
             Goal(
@@ -137,6 +126,11 @@ class FakeNewsAgent:
             ) 
             }
         """
+        Goal(
+            description="Compute Trust and Confidence Score",
+            conditions={AgentState.EVIDENCE_ANALYSIS : AgentState.REASONING},
+            plan=Plan(steps=[AgentState.REASONING])
+            ),
         Goal(
             description="Accurately interpret and classify user input",
             conditions = {}, # adopted from any prior, current 
@@ -252,9 +246,8 @@ class FakeNewsAgent:
             AgentState.INPUT_PROCESSING : self.process_input,
             AgentState.INFORMATION_GATHERING : self.gather_information,
             AgentState.EVIDENCE_ANALYSIS : self.analyze_evidence,
-            AgentState.REASONING : self.perform_reasoning,
+            AgentState.REASONING : self.perform_goal_reasoning,
             AgentState.RECOMMENDATION_FORMULATION : self.formulate_recommendation,
-            AgentState.OUTPUT_GENERATION : self.generate_output,
             AgentState.SELF_EVALUATION : self.perform_self_evaluation
         }
         
@@ -266,12 +259,9 @@ class FakeNewsAgent:
     # the agent will tune this knob to imporve itself
     def initialise_hyperparameters(self):
         hyperparameters = {
-            'w_ontology' : 0.6, # assigned by the agent
-            'w_llm' : 0.4, # assigned by the agent
-            'trust_ontology' : 0.0, # assigned by the onmtology
-            'trust_llm' : 0.0, # assigned by the ontology
-            'confidence_ontology' : "High", # High/Medium/Low
-            'confidence_llm' : "Low" # High/Medium/Low
+            'trust_ontology' : 0.8, # assigned by us
+            'trust_llm' : 0.6, # assigned by us
+            'trust_llm_vedant' : 0.7 
         }
         return hyperparameters
 
@@ -298,13 +288,15 @@ class FakeNewsAgent:
     def gather_information(self) -> None:
         """Gather information from both ontology and LLM."""
         logging.debug(f"gather_information, state : {self.state}")
-        ontology_results = self.query_ontology()
+        if self.ontology_service:
+            ontology_results = self.ontology_service.query(self.current_news_item)
+   
         try:
             print(dir(self.llm_service))
             llm_results = self.llm_service.query(self.current_news_item)
         except Exception as e :print(e)
       
-        exit()
+        
         self.analysis_results['gathered_info'] = {
             'ontology_data': ontology_results,
             'llm_analysis': llm_results
@@ -315,30 +307,20 @@ class FakeNewsAgent:
         logging.debug(f"analyze_evidence, state : {self.state}, goals active ")
         if 'gathered_info' not in self.analysis_results:
             raise ValueError("No gathered information to analyze")
-        
-        self.analysis_results['evidence_analysis'] = self.rank_evidence()
 
-    def perform_reasoning(self) -> None:
+    def perform_goal_reasoning(self) -> None:
         """Perform reasoning based on analyzed evidence."""
         logging.debug(f"perform_reasoning, state : {self.state}, goals active ")
         if 'evidence_analysis' not in self.analysis_results:
             raise ValueError("No analyzed evidence for reasoning")
-        
         self.analysis_results['reasoning_results'] = self.reason_about_evidence()
 
     def formulate_recommendation(self) -> None:
         """Formulate a recommendation based on reasoning."""
         logging.debug(f"formulate_recomendation, state: {self.state}, goals active ")
         if 'reasoning_results' not in self.analysis_results:
-            raise ValueError("No reasoning results for recommendation")
-        
-        self.analysis_results['recommendation'] = self.generate_recommendation()
 
-    def generate_output(self) -> None:
-        """Generate the final output."""
-        logging.debug(f"generate_output, {self.state}, goals active ")
-        if 'recommendation' not in self.analysis_results:
-            raise ValueError("No recommendation to output")
+            raise ValueError("No reasoning results for recommendation")
         
         self.analysis_results['final_output'] = {
             'verification_result': self.analysis_results['recommendation'],
@@ -346,6 +328,9 @@ class FakeNewsAgent:
             'confidence_score': self.update_confidence_score(),
             'evidence_summary': self.summarize_evidence()
         }
+        
+    
+        
 
     def perform_self_evaluation(self) -> None:
         """Perform self-evaluation of the analysis process."""
@@ -359,62 +344,11 @@ class FakeNewsAgent:
 
     ### Helper methods
 
-    def query_ontology(self) -> dict:
-        """Query the ontology for relevant information."""
-        if self.ontology_service:
-            return self.ontology_service.query(self.current_news_item)
-        return {}
-    
-    def query_llm(self) -> dict:
-        """Query the LLM for analysis."""
-        if self.llm_service:
-            return self.llm_service.query(self.current_news_item)
-        return {}
-
-    def rank_evidence(self) -> dict:
-        """Rank and score gathered evidence."""
-        gathered_info = self.analysis_results['gathered_info']
-        # Implement evidence ranking logic
-        return {'evidence_scores': {}, 'reliability_metrics': {}}
-    
-    # check whether there is a mismatch
-    def reason_about_evidence(self) -> dict:
-        """Perform reasoning about the evidence."""
-        evidence = self.analysis_results['evidence_analysis']
-        # Implement reasoning logic
-        return {'conclusions': [], 'confidence_levels': {}}
-
-    def generate_recommendation(self) -> dict:
-        """Generate a recommendation based on reasoning."""
-        reasoning = self.analysis_results['reasoning_results']
-        # Implement recommendation generation logic
-        return {'verdict': '', 'explanation': '', 'supporting_evidence': []}
-
-    def calculate_trust_score(self) -> float:
-        """Calculate the confidence score of the analysis."""
-        return (self.hyperparameters['w_ontology'] * self.hyperparameters['trust_ontology'] + self.hyperparameters['w_llm'] * self.hyperparameters['trust_llm']) / (self.hyperparameters['w_ontology'] + self.hyperparameters['w_llm'])
-
-    # agent opinion on external source trustworthyness can change over time based on past experience 
-    def update_confidence_score(self):
-        self.calculate_confidence_score()
 
     # confidence measure is affected by the mismatches between llm and ontology  
     def calculate_confidence_score(self) -> float:
         """Calculate the confidence score of the analysis."""
-        if self.curr_mismatch_count > self.prior_mismatch_count:
-            if self.hyperparameters['confidence_llm'] == 'High':
-                self.hyperparameters['confidence_llm'] = 'Medium'
-            elif self.hyperparameters['confidence_llm'] == 'Medium':
-                self.hyperparameters['confidence_llm'] = 'Low'
-        else:
-            if self.hyperparameters['confidence_llm'] == 'Low':
-                self.hyperparameters['confidence_llm'] = 'Medium'
-            elif self.hyperparameters['confidence_llm'] == 'Medium':
-                self.hyperparameters['confidence_llm'] = 'High'
     
-    def summarize_evidence():
-        """summarize the two external sources results"""
-        return None
 
     def identify_improvements(self) -> List[str]:
         """Identify areas for improvement in the analysis process."""
@@ -428,7 +362,6 @@ class FakeNewsAgent:
         # - number of intereaction with user
         # - 
         return []
-
 
     ### Agent Test method
 
