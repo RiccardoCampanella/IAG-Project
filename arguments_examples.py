@@ -1,7 +1,7 @@
 """
 {
         "strArguments": "",
-        "intTrusScore": None,
+        "intTrustScore": None,
         "strModel": "Ontology",
         "boolCounterArgument": False
     }

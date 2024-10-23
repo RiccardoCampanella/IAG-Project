@@ -62,7 +62,12 @@ class FakeNewsAgent:
 
         self.state = AgentState.IDLE
         self.ontology_service = ontology_service
+<<<<<<< Updated upstream
         self.llm_service = llm_service
+=======
+        self.llm_service = LLMService()
+        self.logger = logging.getLogger(__name__)
+>>>>>>> Stashed changes
         self.analysis_results = argument_examples #TODO remove these variables when done with testing.
         self.current_news_item = "Eating spicy food causes hair loss" #TODO remove these variables when done with testing.
         #self.transition_from_state = np.full(len(AgentState), False)
@@ -194,6 +199,7 @@ class FakeNewsAgent:
         return [goal for goal in self.subgoals if goal.is_active]
     
     def deactivate_goals(self):
+        logging.debug(f"Deactivating Goals")
         for goal in self.subgoals:
             goal.is_active = False
     
@@ -215,6 +221,7 @@ class FakeNewsAgent:
                         goal.is_active = goal.conditions[current_state_id - 1] == self.state
             else:
                 goal.is_active = True # can be activated with no conditions
+       
 
     # execute active goal(s)'s plan  
     def pursue_active_goals(self) -> None:
@@ -446,6 +453,7 @@ class FakeNewsAgent:
                 
                 # pursue goal
                 self.pursue_active_goals()
+                if self.state == AgentState.INFORMATION_GATHERING: exit()
                
                 
             return self.analysis_results
