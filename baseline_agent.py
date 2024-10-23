@@ -62,12 +62,10 @@ class FakeNewsAgent:
 
         self.state = AgentState.IDLE
         self.ontology_service = ontology_service
-<<<<<<< Updated upstream
-        self.llm_service = llm_service
-=======
+
         self.llm_service = LLMService()
         self.logger = logging.getLogger(__name__)
->>>>>>> Stashed changes
+
         self.analysis_results = argument_examples #TODO remove these variables when done with testing.
         self.current_news_item = "Eating spicy food causes hair loss" #TODO remove these variables when done with testing.
         #self.transition_from_state = np.full(len(AgentState), False)
@@ -212,20 +210,22 @@ class FakeNewsAgent:
     # A goal is activated when the current state is included in the goals states 
     def activate_relevant_goals(self) -> None:
         """Activate goals relevant to the current state."""
-        logging.debug(f"activate_relevant_goals, state: {self.state}, goals active :")
+        logging.debug(f"activate_relevant_goals")
         current_state_id = self.state.value
         for goal in self.subgoals:
             if goal.conditions:
                 for prior_state in goal.conditions.keys():
-                    if current_state_id - 1 == goal.conditions[prior_state]:
-                        goal.is_active = goal.conditions[current_state_id - 1] == self.state
+                    
+                    if current_state_id - 1 == prior_state.value:
+                        goal.is_active = True
+                        
             else:
                 goal.is_active = True # can be activated with no conditions
        
 
     # execute active goal(s)'s plan  
     def pursue_active_goals(self) -> None:
-        logging.debug(f"adopt_ativate_goals, state: {self.state}")
+        logging.debug(f"Pursue_active_goals, state: {self.state}")
         """Adopt plans for active goals."""
         for goal in self.get_active_goals():
             if goal.plan:
@@ -258,7 +258,7 @@ class FakeNewsAgent:
             AgentState.SELF_EVALUATION : self.perform_self_evaluation
         }
         
-        if state in action_map.keys:
+        if state in action_map.keys():
             action_map[state]()
         else:
             raise ValueError(f"No action defined for state {state}")
@@ -293,14 +293,18 @@ class FakeNewsAgent:
             'content_length': len(self.current_news_item['content']),
             'source': self.current_news_item['source']
         }
-        
+    
 
     def gather_information(self) -> None:
         """Gather information from both ontology and LLM."""
-        logging.debug(f"gather_information, state : {self.state}, goals active ")
+        logging.debug(f"gather_information, state : {self.state}")
         ontology_results = self.query_ontology()
-        llm_results = self.query_llm()
-        
+        try:
+            print(dir(self.llm_service))
+            llm_results = self.llm_service.query(self.current_news_item)
+        except Exception as e :print(e)
+      
+        exit()
         self.analysis_results['gathered_info'] = {
             'ontology_data': ontology_results,
             'llm_analysis': llm_results
