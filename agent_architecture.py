@@ -1,37 +1,90 @@
-from owlready2 import *
-from pprint import pprint
-path = "C:\\Users\\tijme\\Documents\\GitHub\\IAG-Project\\intelligent_agents.rdf"
-
 from owlready2 import * 
 import owlready2
-owlready2.JAVA_EXE = r"C:\Users\lucmi\Downloads\Protege-5.6.4-win\Protege-5.6.4\jre\bin\java.exe"
-# Create a Graph \Documents\Opdrachten\IAG-Project
-onto = get_ontology(r"C:\Users\lucmi\Documents\Opdrachten\IAG-Project\intelligent_agents.rdf").load()
-#print(type(onto))
-#for entity in onto.entities():
-#    print(entity)
-with onto:
-    sync_reasoner()
-#for cls in onto.classes():
- #   print("yeah", cls)
-ar1 = onto.Healthy.instances()
-ar2 = onto.Sport.instances()
-inte = list(set(ar1).intersection(ar2))
-print("result", inte)
+import yaml
+from groq import Groq
+import os
+from functools import reduce
 
+
+# Load the config.yaml file
+with open("config.yaml", "r") as file:
+    config = yaml.safe_load(file)
+
+
+# Intitialize global variables
+os.environ["GROQ_API_KEY"] = config['keys']['llm_api_key']
+owlready2.JAVA_EXE = config['paths']['protege_path']
+#owlready2.JAVA_EXE = r"C:\Users\lucmi\Downloads\Protege-5.6.4-win\Protege-5.6.4\jre\bin\java.exe"
 class goal_based_agent:
-  def __init__(self, path="onto_pizza.owl"):
-    self.ontology = get_ontology(path)
-    self.ontology.load()
-    pprint(list(self.ontology.classes())[0])
+  def __init__(self):
+    self.path = config['paths']['ontology_local_path']
+    #self.ontology = get_ontology(r"C:\Users\lucmi\Documents\Opdrachten\IAG-Project\intelligent_agents.rdf").load()
+    self.ontology = get_ontology(self.path).load() # Load the ontology
+    #self.ontology.load()
+    
+    with self.ontology: # Run the reasoner to obtain the inferences
+      sync_reasoner()
+    #query = [["class", "Healthy"], ["class", "Sport"]]
+    query = [["objectproperty", ["Eats", "Cookie"]]]
+    self.reasoning(query)
+    self.LLM = Groq(  # Initialize communication with the large language model
+    api_key=os.environ.get("GROQ_API_KEY"),
+    )
+    self.model = config['model_specs']['model_type'] 
+    self.model_temperature = config['model_specs']['temperature'] 
+    self.statement = None
+    self.state = 'Idle'
+    self.actions = []
+    self.get_action_list()
+    self.goals = []
+  
+    self.confidence = 0
+    self.trust = 0
+    self.boolLLMQuery = False
+    self.boolOntologyQuery = True
+    self.lstLLMQueries = []
+  
+  def run(self):
+    while self.actions != []:
+      print([action.__name__ for action in self.actions],self.state)
+      self.actions[0]()
+      self.actions.pop(0)
+      if self.actions == []:
+        self.get_action_list()
+      self.state_transition()    
+      
+  def state_transition(self):
+    print(self.lstLLMQueries != [])
+    if self.state == "Idle" and self.statement != None:
+      self.state = "Input Processing"
+    elif self.state == "Input Processing" and self.lstLLMQueries != []:
+      self.state = "Information Gathering"  
+    elif self.state == "Information Gathering":
+      self.state = "End"
+    
+  def get_action_list(self):
+    action_list = []
+    if self.state == "Idle":
+      action_list.append(self.await_user)
+    elif self.state == "Input Processing":
+      action_list.append(self.simple_query)
+      action_list.append(self.get_LLM_queries)
+    elif self.state == "Information Gathering":
+      action_list.append(self.get_LLM_arguments)
+    elif self.state == "End":
+      return
+    self.actions = action_list
 
-    #self.label_to_class = {ent.label[0]: ent for ent in self.ontology.classes()}
-    #self.label_to_prop = {prop.label[0]: prop for prop in self.ontology.properties()}
+  def get_LLM_queries(self):
+    LLMprompt = 'Can you provide four different ways to turn the statement ' + \
+      self.statement + \
+      ' into questions, ensuring two of these are negations? Keep the answer concise.'
+    
+    LLMresponse = self.LLM_query(LLMprompt)
+    lstQuestions = self.extract_text(LLMresponse)
+    
+    for strQuestion in lstQuestions:
 
-<<<<<<< Updated upstream
-    self.class_to_label = {ent:ent.label for ent in self.ontology.classes()}
-    #self.prop_to_label = {prop:prop.label[0] for prop in self.ontology.properties()}
-=======
       llmQuery = strQuestion + \
         " Present arguments concisely, " + \
         "focusing on evidence without speculation, " + \
@@ -41,7 +94,7 @@ class goal_based_agent:
       self.lstLLMQueries.append(llmQuery)
     print(self.lstLLMQueries)
     self.boolGetLLMQueries = True
-  
+    
   def reasoning(self, arguments, target = None, forall = None):
       instances_list = []
       for datatype, argument in arguments:
@@ -77,6 +130,8 @@ class goal_based_agent:
                   if sub == instance and obj == ontoinstance:
                       objectlist.append(instance)
       return objectlist
+  
+      
   def get_LLM_arguments(self):
     LLMresponse = self.LLM_query(self.lstLLMQueries[0])
     self.lstArguments = self.extract_text(LLMresponse)
@@ -95,37 +150,67 @@ class goal_based_agent:
               question = re.sub(r"\s*\(.*?\)", "", line.split('. ', 1)[1]).strip()
               questions.append(question)
       return questions
->>>>>>> Stashed changes
 
-    pprint(type(list(self.ontology.classes())[0]))
-    list(default_world.sparql("""
-           SELECT ?y
-           { ?x rdfs:label "Healthy" .
-             ?x rdfs:subClassOf* ?y }
-    """))
-    # Run the reasoner to obtain the inferences
-    #with self.ontology:
-     #   sync_reasoner(infer_property_values=True)
-  #def __init__(self):
-
-
-  x = 1
-  #def function_make_query_from_nl():
+  def await_user(self): # Wait untill the user inputs a statement. This switches agent state to 'Input Processing'
+    if self.statement != None: return 
+    statement = input("Enter statement...")
+    self.statement = statement
+    
+  def simple_query(self): # Simple query for testing
+    ar1 = self.ontology.Healthy.instances()
+    ar2 = self.ontology.Sport.instances()
+    inte = list(set(ar1).intersection(ar2))
+    print("result", inte[0])
+    
   
+  def LLM_query(self,LLMQuery): # Returns the answer to a given prompt from the LLM
+    if type(LLMQuery) != str: return "ERROR! LLMQuery should be a string"
+    chat_completion = self.LLM.chat.completions.create(
+    messages=[
+        {
+            "role": "user",
+            "content": LLMQuery,
+        }
+    ],
+    model=self.model,
+    temperature=self.model_temperature,
+    )
+    #TODO remove debug print
+    print(chat_completion.choices[0].message.content)
+    return chat_completion.choices[0].message.content
  
+  """ # Pseudo code for potential ontology query 
 
-  #def function_get_info_ontology():
+  statement: 'Does eating spicy food cause hair loss'
+
+  structure: (Domain Action Range) implies (Domain attribute Range2)
+    ObjProperty = eating
+    Range = spicy food
+    Domain = ??
+    Range2 = hair loss
+
+    
+  statement: swimming is good for your heart
+
+  structure: (Domain ObjProperty Range) implies (Domain objProperty Range2)
+
+  ObjProperty = ??
+  Range = swimming
+  Domain = ??
   
-
-  #def function_get_info_gpt():
-
-  #def function_rank_info():
-
-  #def function_make_reccomendation():
+  Range2 = Heart
 
 
-trust_llm = 6
-trust_ont = 8
+  def find_object_properties():
+    
 
 
-agent = goal_based_agent(path)
+  
+  
+  
+  """
+
+
+agent = goal_based_agent()
+agent.statement = 'Does eating spicy food cause hair loss'
+agent.run()

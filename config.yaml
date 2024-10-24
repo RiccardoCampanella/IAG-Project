@@ -1,0 +1,15 @@
+# Api Keys
+keys:
+  llm_api_key : ""
+
+# Paths
+paths : 
+  ontology_local_path : "C:\\Users\\lucmi\\Documents\\Opdrachten\\IAG-Project\\intelligent_agents.rdf"
+  protege_path : "C:\\Users\\lucmi\\Downloads\\Protege-5.6.4-win\\Protege-5.6.4\\jre\\bin\\java.exe"
+
+# LLM specs
+model_specs:
+  model_type : "llama3-8b-8192"
+  temperature : 0.2
+
+# Ontology specs
