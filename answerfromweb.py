@@ -1,8 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 
-google_cse_api_key = "google cse api"
-google_cse_cx = "google custom search engine id"
+google_cse_api_key = "AIzaSyBSV3jz3z5JNLhgxc7eBsILkAHVRU9Mo-Q"
+google_cse_cx = "9187f65ee5d384795"
 
 def get_answer_from_google_cse(question):
     # Define the search URL using the API key and CX
@@ -24,7 +24,6 @@ def get_answer_from_google_cse(question):
         texts = []
         for item in results['items']:
             link = item['link']
-            print(f"Fetching content from {link}...")  # Optional: Debugging output
             try:
                 page_text = get_page_content(link)
                 texts.append(page_text)
@@ -44,12 +43,10 @@ def get_page_content(url):
     # Extract all text from the page
     page_text = soup.get_text(separator=' ', strip=True)
     
-    # Optionally, you can refine to get more specific parts of the text, e.g., <p> tags:
-    # page_text = ' '.join([p.get_text() for p in soup.find_all('p')])
     
     return page_text
 
-# Call this fucntion to send request
+# Example integration with the rest of your code:
 def get_answer(question):
     try:
         # Call the Google CSE function
@@ -58,4 +55,3 @@ def get_answer(question):
     except Exception as e:
         print(f"Error fetching answer: {e}")
         return None
-
