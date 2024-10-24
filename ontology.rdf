@@ -55,17 +55,19 @@
     <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#causeDisease -->
 
     <owl:ObjectProperty rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#causeDisease">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:domain rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Food"/>
         <rdfs:range rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Diseases"/>
     </owl:ObjectProperty>
     
 
 
-    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#causes -->
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#causesAllergicReaction -->
 
-    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#causes">
-        <rdfs:domain rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Environment"/>
-        <rdfs:range rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Availability"/>
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#causesAllergicReaction">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Food"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#EatingConditions"/>
     </owl:ObjectProperty>
     
 
@@ -73,18 +75,9 @@
     <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#causesCondition -->
 
     <owl:ObjectProperty rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#causesCondition">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:domain rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Sport"/>
         <rdfs:range rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#HealthConditions"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#climateAffectsIngredient -->
-
-    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#climateAffectsIngredient">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-        <rdfs:domain rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Climate"/>
-        <rdfs:range rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Ingredients"/>
     </owl:ObjectProperty>
     
 
@@ -132,6 +125,7 @@
     <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#eatsIngredient -->
 
     <owl:ObjectProperty rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#eatsIngredient">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:domain rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Human"/>
         <rdfs:range rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Food"/>
     </owl:ObjectProperty>
@@ -141,6 +135,7 @@
     <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#eatsRecipe -->
 
     <owl:ObjectProperty rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#eatsRecipe">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:domain rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Human"/>
         <rdfs:range rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Recipe"/>
     </owl:ObjectProperty>
@@ -157,18 +152,10 @@
     
 
 
-    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#hasClimate -->
-
-    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#hasClimate">
-        <rdfs:domain rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Environment"/>
-        <rdfs:range rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Climate"/>
-    </owl:ObjectProperty>
-    
-
-
     <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#hasCommonInjuries -->
 
     <owl:ObjectProperty rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#hasCommonInjuries">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:domain rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Sport"/>
         <rdfs:range rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#CommonInjuries"/>
     </owl:ObjectProperty>
@@ -178,6 +165,7 @@
     <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#hasCondition -->
 
     <owl:ObjectProperty rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#hasCondition">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:domain rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Health"/>
         <rdfs:range rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#HealthConditions"/>
     </owl:ObjectProperty>
@@ -187,18 +175,9 @@
     <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#hasDietaryPreference -->
 
     <owl:ObjectProperty rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#hasDietaryPreference">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:domain rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Human"/>
         <rdfs:range rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#DietaryPreference"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#hasDisease -->
-
-    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#hasDisease">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#TransitiveProperty"/>
-        <rdfs:domain rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Health"/>
-        <rdfs:range rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Diseases"/>
     </owl:ObjectProperty>
     
 
@@ -206,48 +185,9 @@
     <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#hasGender -->
 
     <owl:ObjectProperty rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#hasGender">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:domain rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Personal"/>
         <rdfs:range rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Gender"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#hasHealthBenefits -->
-
-    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#hasHealthBenefits">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-        <rdfs:domain rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Recipe"/>
-        <rdfs:range rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Health"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#hasHumidity -->
-
-    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#hasHumidity">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-        <rdfs:domain rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Climate"/>
-        <rdfs:range rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Humidity"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#hasName -->
-
-    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#hasName">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-        <rdfs:domain rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Food"/>
-        <rdfs:range rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#FoodName"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#hasPersonalDetail -->
-
-    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#hasPersonalDetail">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-        <rdfs:domain rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Human"/>
-        <rdfs:range rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Personal"/>
     </owl:ObjectProperty>
     
 
@@ -255,17 +195,9 @@
     <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#hasQuantity -->
 
     <owl:ObjectProperty rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#hasQuantity">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:domain rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Ingredients"/>
         <rdfs:range rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Quantity"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#hasRecipeName -->
-
-    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#hasRecipeName">
-        <rdfs:domain rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Recipe"/>
-        <rdfs:range rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#RecipeName"/>
     </owl:ObjectProperty>
     
 
@@ -290,25 +222,6 @@
     
 
 
-    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#hasTemperature -->
-
-    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#hasTemperature">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-        <rdfs:domain rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Climate"/>
-        <rdfs:range rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Temperature"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#hasWeather -->
-
-    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#hasWeather">
-        <rdfs:domain rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Climate"/>
-        <rdfs:range rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Weather"/>
-    </owl:ObjectProperty>
-    
-
-
     <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#impactsCaloriesBurned -->
 
     <owl:ObjectProperty rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#impactsCaloriesBurned">
@@ -325,6 +238,16 @@
         <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:domain rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Nutrient"/>
         <rdfs:range rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Diseases"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#isAvailableIn -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#isAvailableIn">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Food"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Availability"/>
     </owl:ObjectProperty>
     
 
@@ -382,6 +305,7 @@
     <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#isRestrictedByHealthCondition -->
 
     <owl:ObjectProperty rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#isRestrictedByHealthCondition">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:domain rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Food"/>
         <rdfs:range rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#HealthConditions"/>
     </owl:ObjectProperty>
@@ -421,17 +345,8 @@
     <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#limitsFoodIntake -->
 
     <owl:ObjectProperty rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#limitsFoodIntake">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:domain rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#EatingConditions"/>
-        <rdfs:range rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Food"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#mapsToFoodItem -->
-
-    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#mapsToFoodItem">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#InverseFunctionalProperty"/>
-        <rdfs:domain rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Ingredients"/>
         <rdfs:range rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Food"/>
     </owl:ObjectProperty>
     
@@ -440,6 +355,7 @@
     <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#performsSport -->
 
     <owl:ObjectProperty rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#performsSport">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:domain rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Human"/>
         <rdfs:range rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Sport"/>
     </owl:ObjectProperty>
@@ -496,19 +412,10 @@
     
 
 
-    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#suitableForSportsType -->
-
-    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#suitableForSportsType">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-        <rdfs:domain rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#DietaryPreference"/>
-        <rdfs:range rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#SportType"/>
-    </owl:ObjectProperty>
-    
-
-
     <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#usesBodyPart -->
 
     <owl:ObjectProperty rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#usesBodyPart">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:domain rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Sport"/>
         <rdfs:range rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#BodyParts"/>
     </owl:ObjectProperty>
@@ -518,6 +425,7 @@
     <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#usesCookingMethod -->
 
     <owl:ObjectProperty rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#usesCookingMethod">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#TransitiveProperty"/>
         <rdfs:domain rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Food"/>
         <rdfs:range rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#CookingMethod"/>
     </owl:ObjectProperty>
@@ -713,18 +621,18 @@
     
 
 
-    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Nutrient -->
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Name -->
 
-    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Nutrient">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Food"/>
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Name">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Personal"/>
     </owl:Class>
     
 
 
-    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Pain -->
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Nutrient -->
 
-    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Pain">
-        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Symptoms"/>
+    <owl:Class rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Nutrient">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Food"/>
     </owl:Class>
     
 
@@ -860,6 +768,7 @@
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Apple">
         <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#FoodName"/>
+        <untitled-ontology-3:isAvailableIn rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Summer"/>
     </owl:NamedIndividual>
     
 
@@ -982,6 +891,8 @@
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Cycling">
         <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#SportName"/>
+        <untitled-ontology-3:hasRepetitiveness rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#HighRepetitive"/>
+        <untitled-ontology-3:requiresSpecificSeason rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Summer"/>
     </owl:NamedIndividual>
     
 
@@ -1034,10 +945,28 @@
     
 
 
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#FrozenShoulder -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#FrozenShoulder">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#MovingConditions"/>
+        <untitled-ontology-3:relatesToBodyPart rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Shoulders"/>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Frying -->
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Frying">
         <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#CookingMethod"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#GlutenAllergy -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#GlutenAllergy">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#EatingConditions"/>
+        <untitled-ontology-3:limitsEatingOptions rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#SpaghettiCarbonara"/>
     </owl:NamedIndividual>
     
 
@@ -1054,6 +983,7 @@
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#GrilledSalmon">
         <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#RecipeName"/>
+        <untitled-ontology-3:isMainIngredientOf rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Salmon"/>
     </owl:NamedIndividual>
     
 
@@ -1066,10 +996,11 @@
     
 
 
-    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Headache -->
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Handball -->
 
-    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Headache">
-        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Pain"/>
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Handball">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#SportName"/>
+        <untitled-ontology-3:isSimilarTo rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Basketball"/>
     </owl:NamedIndividual>
     
 
@@ -1110,6 +1041,7 @@
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#HotTemperature">
         <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Temperature"/>
+        <untitled-ontology-3:impactsCaloriesBurned rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#HighCalories"/>
     </owl:NamedIndividual>
     
 
@@ -1157,7 +1089,7 @@
     <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#JointPain -->
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#JointPain">
-        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#MovingConditions"/>
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Symptoms"/>
     </owl:NamedIndividual>
     
 
@@ -1190,6 +1122,7 @@
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#LossOfAppetite">
         <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#EatingConditions"/>
+        <untitled-ontology-3:limitsFoodIntake rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Pasta"/>
     </owl:NamedIndividual>
     
 
@@ -1269,7 +1202,7 @@
     <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#MuscleCramps -->
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#MuscleCramps">
-        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Pain"/>
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Symptoms"/>
     </owl:NamedIndividual>
     
 
@@ -1286,6 +1219,8 @@
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#MuscleWeakness">
         <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#MovingConditions"/>
+        <untitled-ontology-3:conditionHasSymptom rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#MuscleCramps"/>
+        <untitled-ontology-3:restrictsSportParticipation rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Soccer"/>
     </owl:NamedIndividual>
     
 
@@ -1306,10 +1241,22 @@
     
 
 
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Obesity -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Obesity">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Diseases"/>
+        <untitled-ontology-3:diseaseHasSymptom rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#JointPain"/>
+        <untitled-ontology-3:hasCondition rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#ReducedMobility"/>
+        <untitled-ontology-3:hasSymptom rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#JointPain"/>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#OliveOil -->
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#OliveOil">
         <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#IngredientName"/>
+        <untitled-ontology-3:hasQuantity rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#100ml"/>
     </owl:NamedIndividual>
     
 
@@ -1337,6 +1284,7 @@
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Peanut">
         <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#FoodName"/>
+        <untitled-ontology-3:causesAllergicReaction rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#PeanutAllergy"/>
         <untitled-ontology-3:isRestrictedByHealthCondition rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#PeanutAllergy"/>
     </owl:NamedIndividual>
     
@@ -1354,6 +1302,20 @@
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Pescatarian">
         <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#DietaryPreference"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Pieter -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Pieter">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Name"/>
+        <untitled-ontology-3:eatsIngredient rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Apple"/>
+        <untitled-ontology-3:eatsRecipe rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Salad"/>
+        <untitled-ontology-3:hasAge rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Senior"/>
+        <untitled-ontology-3:hasDietaryPreference rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Vegan"/>
+        <untitled-ontology-3:hasGender rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Male"/>
+        <untitled-ontology-3:performsSport rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Soccer"/>
     </owl:NamedIndividual>
     
 
@@ -1388,6 +1350,15 @@
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Rainy">
         <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Weather"/>
+        <untitled-ontology-3:affectsSport rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Cycling"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#ReducedMobility -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#ReducedMobility">
+        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#MovingConditions"/>
     </owl:NamedIndividual>
     
 
@@ -1396,6 +1367,7 @@
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Salad">
         <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#RecipeName"/>
+        <untitled-ontology-3:isPartOfDiet rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#GlutenFree"/>
     </owl:NamedIndividual>
     
 
@@ -1437,6 +1409,7 @@
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Snowy">
         <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Weather"/>
+        <untitled-ontology-3:affectsFood rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Apple"/>
     </owl:NamedIndividual>
     
 
@@ -1445,13 +1418,15 @@
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Soccer">
         <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#SportName"/>
+        <untitled-ontology-3:hasCommonInjuries rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#AnkleSprain"/>
+        <untitled-ontology-3:usesBodyPart rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Leg"/>
     </owl:NamedIndividual>
     
 
 
-    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#SpagetthiCarbonara -->
+    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#SpaghettiCarbonara -->
 
-    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#SpagetthiCarbonara">
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#SpaghettiCarbonara">
         <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#RecipeName"/>
     </owl:NamedIndividual>
     
@@ -1469,14 +1444,6 @@
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Steaming">
         <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#CookingMethod"/>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#StomachAche -->
-
-    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#StomachAche">
-        <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Pain"/>
     </owl:NamedIndividual>
     
 
@@ -1533,6 +1500,9 @@
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Vegan">
         <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#DietaryPreference"/>
+        <untitled-ontology-3:isCompatibleWith rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Salad"/>
+        <untitled-ontology-3:recipeBelongsToCuisine rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Italian"/>
+        <untitled-ontology-3:usesIngredient rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#OliveOil"/>
     </owl:NamedIndividual>
     
 
@@ -1565,6 +1535,8 @@
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Weightlifting">
         <rdf:type rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#SportName"/>
+        <untitled-ontology-3:causesCondition rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#FrozenShoulder"/>
+        <untitled-ontology-3:isMainSportFor rdf:resource="http://www.semanticweb.org/rubendekoning/ontologies/2024/8/untitled-ontology-3#Male"/>
     </owl:NamedIndividual>
     
 
