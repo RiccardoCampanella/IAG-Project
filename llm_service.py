@@ -3,8 +3,12 @@ import yaml
 import os
 import re
 from collections import defaultdict, Counter
+from pprint import pprint
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from scipy.sparse.csgraph import connected_components
 
 with open("config.yaml", "r") as file:
     config = yaml.safe_load(file)
@@ -22,11 +26,12 @@ class LLMService:
         self.lstLLMQueries = []
 
     def get_LLM_queries(self):
-        LLMprompt = 'Can you provide four different ways to turn the statement ' + \
+        LLMprompt = 'Can you provide a two ways to turn the statement ' + \
         self.statement + \
-        ' into questions? While ensuring two of these are negations. When it is a negation of the statement add "(negation)" to the end. Keep the answer concise.'
+        ' into a question? Please make the second question a negation of the first without using the word "not". When it is a negation of the statement add "(negation)" to the end. Keep the answer concise.'
         
         LLMresponse = self.LLM_query(LLMprompt)
+        print(LLMresponse)
         lstQuestions = self.extract_text(LLMresponse)
         
         for dictQuestion in lstQuestions:
@@ -41,34 +46,47 @@ class LLMService:
         
     def extract_information(self, text):
 
-        pattern = re.compile(r'(\d+)\.\s+(.+?)\s+\(Score:\s+(\d+)\/10\)', re.DOTALL)
         
+        pattern = re.compile(r'\d+\.\s*(\*\*(.*?)\*\*)?\s*(.*?):\s*(.+?)\s+\((score|Score):\s+(\d+)\/10.*?\)', re.DOTALL)
+    
         evidence_for = []
         evidence_against = []
+
+        if text.find("Evidence For") < text.find("Evidence Against"):
         
-        # Extract "Evidence For" block
-        for_match = re.search(r"\*\*Evidence For:\*\*(.*?)\*\*Evidence Against:\*\*", text, re.DOTALL)
-        if for_match:
-            evidence_for = pattern.findall(for_match.group(1))
-        
-        # Extract "Evidence Against" block
-        against_match = re.search(r"\*\*Evidence Against:\*\*(.*?)\*\*Conclusion:\*\*", text, re.DOTALL)
-        if against_match:
-            evidence_against = pattern.findall(against_match.group(1))
+            for_match = re.search(r"Evidence For(.*?)Evidence Against", text, re.DOTALL)
+            if for_match:
+                evidence_for = pattern.findall(for_match.group())
+                
+            # Extract "Evidence Against" and "Evidence Against the Statement" blocks
+            against_match = re.search(r"Evidence Against(.*?)Conclusion", text, re.DOTALL)
+            if against_match:
+                evidence_against = pattern.findall(against_match.group())
+        else:
+            for_match = re.search(r"Evidence For(.*?)Conclusion", text, re.DOTALL)
+            if for_match:
+                evidence_for = pattern.findall(for_match.group())
+                
+            # Extract "Evidence Against" and "Evidence Against the Statement" blocks
+            against_match = re.search(r"Evidence Against(.*?)Evidence For", text, re.DOTALL)
+            if against_match:
+                evidence_against = pattern.findall(against_match.group())
         
         # Build results in the required format
         result = []
-        for idx, (counter, statement, score) in enumerate(evidence_for):
+        for idx, (bold_title, title, short_title, statement, score_label, score) in enumerate(evidence_for):
+            statement_text = f"{(title or short_title).strip()}: {statement.strip()}" if title else statement.strip()
             result.append({
                 "score": int(score),
-                "text": statement.strip(),
+                "text": statement_text,
                 "boolCounterArgument": False
             })
         
-        for idx, (counter, statement, score) in enumerate(evidence_against):
+        for idx, (bold_title, title, short_title, statement, score_label, score) in enumerate(evidence_against):
+            statement_text = f"{(title or short_title).strip()}: {statement.strip()}" if title else statement.strip()
             result.append({
                 "score": int(score),
-                "text": statement.strip(),
+                "text": statement_text,
                 "boolCounterArgument": True
             })
         return result
@@ -78,13 +96,16 @@ class LLMService:
         for query in self.lstLLMQueries:
 
             LLMresponse = self.LLM_query(query["query"])
-            lstArguments = self.extract_information(LLMresponse)
             print(LLMresponse)
+            lstArguments = self.extract_information(LLMresponse)
+            print(query["query"])
+            print()
             for dictArgument in lstArguments:
+                
                 if query["isNegated"] != dictArgument["boolCounterArgument"]:
-                    dictArgument["boolCounterArgument"] = False
-                else: dictArgument["boolCounterArgument"] = True
-                print(dictArgument)
+                    dictArgument["boolCounterArgument"] = True
+                else: dictArgument["boolCounterArgument"] = False
+                
                 self.lstLLMArguments.append(dictArgument)
             
 
@@ -111,8 +132,14 @@ class LLMService:
         print(self.statement)
         self.get_LLM_queries()
         self.get_LLM_arguments()
-        print(self.lstLLMArguments)
-        self.compare_arguments()
+        for i in self.lstLLMArguments:
+            print(i)
+        counter_args = [arg for arg in self.lstLLMArguments if not arg["boolCounterArgument"]]
+        args = [arg for arg in self.lstLLMArguments if arg["boolCounterArgument"]]
+        counter_args = self.compare_arguments(counter_args)
+        args = self.compare_arguments(args)
+        get_score = get_score(args+counter_args)
+
     
     def LLM_query(self, LLMQuery): # Returns the answer to a given prompt from the LLM
         if type(LLMQuery) != str: return "ERROR! LLMQuery should be a string"
@@ -129,24 +156,42 @@ class LLMService:
         #TODO remove debug print
         return chat_completion.choices[0].message.content
 
-    def compare_arguments(self):
+    def compare_arguments(self, args):
 
-        lenArguments = len(self.lstLLMArguments)
-        for i in range(lenArguments-1):
-            for j in range(i+1,lenArguments):
 
-                texts = [self.lstLLMArguments[i]["text"],self.lstLLMArguments[j]["text"]]
-                vectorizer = CountVectorizer().fit_transform(texts)
-                vectors = vectorizer.toarray()
+        texts = [arg["text"] for arg in args]
 
-                cos_sim = cosine_similarity(vectors)[0][1]
+        vectorizer = TfidfVectorizer()
+        sentence_vectors = vectorizer.fit_transform(texts)
 
-                print(self.lstLLMArguments[i])
-                print(self.lstLLMArguments[j])
+        # Step 2: Compute cosine similarity
+        cosine_sim_matrix = cosine_similarity(sentence_vectors)
+        pprint(cosine_sim_matrix)
+        # Step 3: Apply a threshold to create a similarity graph (adjacency matrix)
+        threshold = 0.25
+        similarity_graph = (cosine_sim_matrix >= threshold).astype(int)
+        print(similarity_graph)
+        # Step 4: Find connected components (groups of similar sentences)
+        n_components, labels = connected_components(csgraph=similarity_graph, directed=False, return_labels=True)
+        print(labels)
+        # Step 5: Group sentences by their component labels
+        grouped_sentences = {}
+        for i, label in enumerate(labels):
+            if label not in grouped_sentences:
+                grouped_sentences[label] = []
+            grouped_sentences[label].append(args[i])
 
-                print(cos_sim)
+        # Get the avg of the grouped sentences
+        arg_list = []
+        for group, sents in grouped_sentences.items():
+            print(f"Group {group}:")
+            avg_score = sum([score for score in sents["score"]])
+            new_arg = max(sents, key=lambda x: x["score"])
+            new_arg["score"] = avg_score
+            arg_list.append(new_arg)
             
-           
+        
+        return arg_list
             
 
 
