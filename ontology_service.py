@@ -5,7 +5,7 @@ class OntologyService:
         self.client = client
 
     def query(self):
-        """Query LLM for factual knowledge."""
+        """Query Ontology for factual knowledge."""
         # helpers methods must be private if we want to hide the logic fro the agent
         pass
 

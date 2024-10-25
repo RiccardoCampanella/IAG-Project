@@ -54,11 +54,10 @@ class Goal:
 class FakeNewsAgent:
     def __init__(self, ontology_service: OntologyService=None, llm_service: LLMService=None):
         logging.basicConfig(
-            level=logging.DEBUG,  # Set the logging level to DEBUG to capture all types of log messages
+            level=logging.INFO,  # Set the logging level to DEBUG to capture all types of log messages
             format='%(asctime)s - %(levelname)s - %(message)s',  # Specify the log message format
             handlers=[logging.StreamHandler()]  # Output log messages to the console
         )
-        self.logger = logging.getLogger(__name__)
 
         self.state = AgentState.IDLE
         self.ontology_service = ontology_service
@@ -69,7 +68,7 @@ class FakeNewsAgent:
         self.analysis_results = argument_examples #TODO remove these variables when done with testing.
         self.current_news_item = "Eating spicy food causes hair loss" #TODO remove these variables when done with testing.
         #self.transition_from_state = np.full(len(AgentState), False)
-        #self.transition_from_state[0] = True
+        
         self.initialise_goals()
         self.hyperparameters = self.initialise_hyperparameters()
         self.curr_mismatch_count = 0
@@ -84,9 +83,9 @@ class FakeNewsAgent:
             AgentState.INPUT_PROCESSING,
             AgentState.INFORMATION_GATHERING,
             AgentState.EVIDENCE_ANALYSIS,
-            AgentState.REASONING,
             AgentState.RECOMMENDATION_FORMULATION,
             AgentState.SELF_EVALUATION,
+            AgentState.REASONING,
             AgentState.LEARNING,
             AgentState.ERROR
         ])
@@ -171,7 +170,6 @@ class FakeNewsAgent:
         if True:#self.transition_from_state[self.state.value]:
             self.logger.info(f"Transitioning from {self.state} to {new_state}")
             self.state = new_state
-            print(self.state)
             self.deactivate_goals()
             self.activate_relevant_goals()
         else:
@@ -230,19 +228,23 @@ class FakeNewsAgent:
     def execute_plan(self, plan: Plan) -> None:
         """Execute the steps in a plan."""
         logging.debug(f"execute_plan, {self.state}")
-        while (next_state := plan.next_step()) is not None:
-            try:
-                self.execute_state_action(next_state)
-            except Exception as e:
-                self.logger.error(f"Error executing state {next_state}: {str(e)}")
-                #self.transition_to_state(AgentState.SELF_EVALUATION)
-                break
+        next_state = plan.next_step()
+        while next_state is not None:
+            #try:
+            
+            self.execute_state_action(next_state)
+            #except Exception as e:
+            #    self.logger.error(f"Error executing state {next_state}: {str(e)}")
+            #    #self.transition_to_state(AgentState.SELF_EVALUATION)
+            next_state = plan.next_step()
+            break
         
     # state-action mapping
     def execute_state_action(self, state: AgentState) -> None:
         """Execute the appropriate action for the given state."""
-        logging.debug(f"execute_state_state, state: {self.state}, goals active : ")
+        logging.debug(f"execute state: {self.state}")
         action_map = {
+            AgentState.IDLE : self.await_user,
             AgentState.INPUT_PROCESSING : self.process_input,
             AgentState.INFORMATION_GATHERING : self.gather_information,
             AgentState.EVIDENCE_ANALYSIS : self.analyze_evidence,
@@ -260,7 +262,7 @@ class FakeNewsAgent:
     def initialise_hyperparameters(self):
         hyperparameters = {
             'trust_ontology' : 0.8, # assigned by us
-            'trust_llm' : 0.6, # assigned by us
+            'trust_llm' : 0.8, # assigned by us, will be multiplied by the trust the llm has in its answer.
             'trust_llm_vedant' : 0.7 
         }
         return hyperparameters
@@ -268,49 +270,77 @@ class FakeNewsAgent:
 
     ### Implementation of state-specific actions
 
+    def await_user(self) -> None:
+        if self.current_news_item != None: return 
+        statement = input("Enter news article...")
+        self.current_news_item = statement
+        return
+
     def process_input(self) -> None:
         """Validate and process the input news item."""
         logging.debug(f"process_input, state : {self.state}")
         if not self.current_news_item:
             raise ValueError("No news item to process")
         
-        required_fields = ['title', 'content', 'source']
-        if not all(field in self.current_news_item for field in required_fields):
-            raise ValueError("Missing required fields in news item")
+        #required_fields = ['title', 'content', 'source']
+        #if not all(field in self.current_news_item for field in required_fields):
+        #    raise ValueError("Missing required fields in news item")
         
-        self.analysis_results['processed_input'] = {
-            'title': self.current_news_item['title'],
-            'content_length': len(self.current_news_item['content']),
-            'source': self.current_news_item['source']
-        }
+        #self.analysis_results['processed_input'] = {
+        #    'title': self.current_news_item['title'],
+        #    'content_length': len(self.current_news_item['content']),
+        #    'source': self.current_news_item['source']
+        #}
     
 
     def gather_information(self) -> None:
         """Gather information from both ontology and LLM."""
         logging.debug(f"gather_information, state : {self.state}")
+        print("Gathering information")
         if self.ontology_service:
             ontology_results = self.ontology_service.query(self.current_news_item)
    
         try:
-            print(dir(self.llm_service))
-            llm_results = self.llm_service.query(self.current_news_item)
+            llm_results, trust = self.llm_service.query(self.current_news_item)
         except Exception as e :print(e)
       
         
         self.analysis_results['gathered_info'] = {
             'ontology_data': ontology_results,
-            'llm_analysis': llm_results
-        }
+            'llm_analysis': {
+                "llm_args":llm_results,
+                "llm_selftrust":trust
+                }
+            }
 
     def analyze_evidence(self) -> None:
         """Analyze gathered evidence."""
-        logging.debug(f"analyze_evidence, state : {self.state}, goals active ")
+        logging.debug(f"current_function: analyze_evidence, state : {self.state}")
+
+
         if 'gathered_info' not in self.analysis_results:
             raise ValueError("No gathered information to analyze")
+        
+
+        self.confidence = 0.5 # Set base confidence. 0.5 is neutral
+        if self.analysis_results["gathered_info"]["llm_analysis"]["llm_args"] != []: # if there are LLM results
+            llm_selftrust = self.analysis_results["gathered_info"]["llm_analysis"]["llm_selftrust"]
+            trust_llm = self.hyperparameters["trust_llm"] * abs((llm_selftrust - 0.5)* 2) # Multiply trust in LLm by trust the llm has in itself
+            self.calculate_confidence_score(trust_llm, llm_selftrust < 0.5) # Calculate confidence
+
+        if self.analysis_results["gathered_info"]["ontology_data"] != None: # If there are ontology results
+            self.calculate_confidence_score(self.hyperparameters["trust_ontology"], True)
+
+        self.analysis_results['reasoning_results'] = {
+            "isTrue" : self.confidence > 0.5, # if the confidence in the statement is larger than 0.5. Then the statement is true
+            "confidence_percentage" : abs((self.confidence - 0.5)* 2 * 100) # Turn confidence in percentage
+        }
+       
+        
 
     def perform_goal_reasoning(self) -> None:
         """Perform reasoning based on analyzed evidence."""
-        logging.debug(f"perform_reasoning, state : {self.state}, goals active ")
+        logging.debug(f"perform_reasoning, state : {self.state}")
         if 'evidence_analysis' not in self.analysis_results:
             raise ValueError("No analyzed evidence for reasoning")
         self.analysis_results['reasoning_results'] = self.reason_about_evidence()
@@ -321,13 +351,20 @@ class FakeNewsAgent:
         if 'reasoning_results' not in self.analysis_results:
 
             raise ValueError("No reasoning results for recommendation")
+        print(self.analysis_results['reasoning_results'])
+
+        self.analysis_results['recommendation'] = f"The statement {self.current_news_item} is determined to be "+ \
+            f"{self.analysis_results['reasoning_results']["isTrue"]} with a confidence margin of " + \
+            f"{self.analysis_results['reasoning_results']["confidence_percentage"]}%"
         
+       
         self.analysis_results['final_output'] = {
             'verification_result': self.analysis_results['recommendation'],
-            'trust_score': self.calculate_trust_score(), 
-            'confidence_score': self.update_confidence_score(),
-            'evidence_summary': self.summarize_evidence()
+            'evidence_summary_for': [arg["text"] for arg in self.analysis_results["gathered_info"]["llm_analysis"]["llm_args"] if not arg["boolCounterArgument"]],
+            'evidence_summary_against': [arg["text"] for arg in self.analysis_results["gathered_info"]["llm_analysis"]["llm_args"] if arg["boolCounterArgument"]]
         }
+        print(self.analysis_results["final_output"])
+        
         
     
         
@@ -337,7 +374,6 @@ class FakeNewsAgent:
         logging.debug(f"perfrom_self_evaluation, state : {self.state}, goals active ")
         self.analysis_results['evaluation'] = {
             'process_complete': bool(self.analysis_results.get('final_output')),
-            'confidence_level': self.calculate_confidence_score(),
             'areas_for_improvement': self.identify_improvements()
         }
 
@@ -346,8 +382,30 @@ class FakeNewsAgent:
 
 
     # confidence measure is affected by the mismatches between llm and ontology  
-    def calculate_confidence_score(self) -> float:
+    def calculate_confidence_score(self, trust, boolCounterArg) -> float:
         """Calculate the confidence score of the analysis."""
+        confidence = self.confidence
+        print(confidence)
+        if boolCounterArg:
+            confidence = confidence * (1-trust)
+        else: 
+            confidence = confidence * (1/(1-trust))
+        print(confidence)
+        if confidence > 1:
+            confidence = 0.5 - (self.confidence - 0.5)
+            
+            print(confidence)
+            if not boolCounterArg:
+                confidence = confidence * (1-trust)
+            else: 
+                confidence = confidence * (1/(1-trust))
+            print(confidence)
+            confidence = 1 - confidence 
+            print(confidence)
+
+        self.confidence = confidence
+        return self.confidence
+        
     
 
     def identify_improvements(self) -> List[str]:
@@ -390,7 +448,7 @@ class FakeNewsAgent:
                 
                 # pursue goal
                 self.pursue_active_goals()
-                if self.state == AgentState.INFORMATION_GATHERING: exit()
+                
                
                 
             return self.analysis_results
@@ -402,4 +460,4 @@ class FakeNewsAgent:
 
 if __name__ == '__main__':
     FNA = FakeNewsAgent(OntologyService, LLMService)
-    FNA.analyze_news_item('Does eating spicy food cause hair loss')
+    FNA.analyze_news_item('Running is good for your health')

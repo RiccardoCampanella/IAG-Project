@@ -22,6 +22,7 @@ class LLMService:
         )
         self.model = config['model_specs']['model_type'] 
         self.model_temperature = config['model_specs']['temperature']
+        self.showResults = False
 
         self.lstLLMQueries = []
 
@@ -31,7 +32,8 @@ class LLMService:
         ' into a question? Please make the second question a negation of the first without using the word "not". When it is a negation of the statement add "(negation)" to the end. Keep the answer concise.'
         
         LLMresponse = self.LLM_query(LLMprompt)
-        print(LLMresponse)
+        
+        if self.showResults: print(LLMresponse)
         lstQuestions = self.extract_text(LLMresponse)
         
         for dictQuestion in lstQuestions:
@@ -46,7 +48,6 @@ class LLMService:
         
     def extract_information(self, text):
 
-        
         pattern = re.compile(r'\d+\.\s*(\*\*(.*?)\*\*)?\s*(.*?):\s*(.+?)\s+\((score|Score):\s+(\d+)\/10.*?\)', re.DOTALL)
     
         evidence_for = []
@@ -96,10 +97,11 @@ class LLMService:
         for query in self.lstLLMQueries:
 
             LLMresponse = self.LLM_query(query["query"])
-            print(LLMresponse)
+            if self.showResults: 
+                print(query["query"])
+                print(LLMresponse)
             lstArguments = self.extract_information(LLMresponse)
-            print(query["query"])
-            print()
+            
             for dictArgument in lstArguments:
                 
                 if query["isNegated"] != dictArgument["boolCounterArgument"]:
@@ -129,18 +131,44 @@ class LLMService:
 
     def query(self, current_news_item):
         self.statement = current_news_item
-        print(self.statement)
+
         self.get_LLM_queries()
         self.get_LLM_arguments()
-        for i in self.lstLLMArguments:
-            print(i)
+
+        if self.showResults: 
+            for i in self.lstLLMArguments:
+                print(i)
+
         counter_args = [arg for arg in self.lstLLMArguments if not arg["boolCounterArgument"]]
         args = [arg for arg in self.lstLLMArguments if arg["boolCounterArgument"]]
+
         counter_args = self.compare_arguments(counter_args)
         args = self.compare_arguments(args)
-        get_score = get_score(args+counter_args)
 
-    
+        trust = self.get_trust(args+counter_args)
+        if self.showResults: 
+            print([str(arg["boolCounterArgument"] == False) + " " + str(arg["score"]) for arg in args+counter_args])
+            print(trust)
+        return args+counter_args, trust
+
+    def get_trust(self, args):
+        trust = 0.5
+        for arg in args:
+            if arg["boolCounterArgument"]:
+                trust = trust * (1-arg["score"]/10)
+            else:
+                trust = trust * (1/(1-arg["score"]/10))
+
+        if trust > 1: 
+            trust = 0.5
+            for arg in args:
+                if not arg["boolCounterArgument"]:
+                    trust = trust * (1-arg["score"]/10)
+                else:
+                    trust = trust * (1/(1-arg["score"]/10))
+            trust = 1 - trust
+        return trust
+
     def LLM_query(self, LLMQuery): # Returns the answer to a given prompt from the LLM
         if type(LLMQuery) != str: return "ERROR! LLMQuery should be a string"
         chat_completion = self.client.chat.completions.create(
@@ -158,7 +186,6 @@ class LLMService:
 
     def compare_arguments(self, args):
 
-
         texts = [arg["text"] for arg in args]
 
         vectorizer = TfidfVectorizer()
@@ -166,14 +193,14 @@ class LLMService:
 
         # Step 2: Compute cosine similarity
         cosine_sim_matrix = cosine_similarity(sentence_vectors)
-        pprint(cosine_sim_matrix)
+        
         # Step 3: Apply a threshold to create a similarity graph (adjacency matrix)
         threshold = 0.25
         similarity_graph = (cosine_sim_matrix >= threshold).astype(int)
-        print(similarity_graph)
+       
         # Step 4: Find connected components (groups of similar sentences)
         n_components, labels = connected_components(csgraph=similarity_graph, directed=False, return_labels=True)
-        print(labels)
+       
         # Step 5: Group sentences by their component labels
         grouped_sentences = {}
         for i, label in enumerate(labels):
@@ -184,20 +211,16 @@ class LLMService:
         # Get the avg of the grouped sentences
         arg_list = []
         for group, sents in grouped_sentences.items():
-            print(f"Group {group}:")
-            avg_score = sum([score for score in sents["score"]])
+            avg_score = sum([sent["score"] for sent in sents])/len(sents)
             new_arg = max(sents, key=lambda x: x["score"])
             new_arg["score"] = avg_score
+            new_arg["model"] = "LLM_GROQ"
             arg_list.append(new_arg)
             
         
         return arg_list
-            
-
-
+        
 
 if __name__ == '__main__':
     LLM = LLMService()
-    #
-     
-    LLM.query("Does swimming increase heart attacks?")
+    LLM.query("Swimming is good for your health")
