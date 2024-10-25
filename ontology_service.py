@@ -17,12 +17,26 @@ class OntologyService:
         self.path = config['paths']['ontology_local_path']
         self.ontology = get_ontology(self.path).load() # Load the ontology
         
-        with self.ontology: # Run the reasoner to obtain the inferences
-            sync_reasoner()
-            
+        try:
+            self.ontology = get_ontology(self.path).load()
+            with self.ontology:
+                sync_reasoner()
+            self.use_backup = False
+
+        except Exception as e:
+            print(f"Warning: Primary ontology failed to load ({str(e)}). Using Wikipedia backup.")
+            self.use_backup = True
+            self.ontology = None
+        
+        if not self.use_backup:
+            self._primary_query(arguments, target, forall)
+        else:
+            self._wiki_query(arguments, target, forall)
+
         #query = [["class", "Healthy"], ["class", "Sport"]]
-        query = [["objectproperty", ["Eats", "Cookie"]]]
-        self.reasoning(query)
+        self.query = [["objectproperty", ["Eats", "Cookie"]]]
+        self.protege_query = self.nlp_to_protege_query(query)
+        self.query(protege_query)
 
     def nlp_to_protege_query(self, natural_language_query):
         """

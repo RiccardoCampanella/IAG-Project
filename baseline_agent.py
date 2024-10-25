@@ -869,10 +869,6 @@ class FakeNewsAgent:
                 achieved_goals_ratio,
                 confidence_level,
                 llm_ontology_agreement
-            ),
-            'trust_llm_vedant': self._calculate_vedant_adjustment(
-                dropped_goals_ratio,
-                confidence_level
             )
         }
         
@@ -968,24 +964,6 @@ class FakeNewsAgent:
         
         return sum(positive_factors) - sum(negative_factors)
 
-    def _calculate_vedant_adjustment(
-        self,
-        dropped_ratio: float,
-        confidence: float
-    ) -> float:
-        """Calculate adjustment for Vedant-specific trust based on performance metrics."""
-        # Positive factors increase trust
-        positive_factors = [
-            confidence * 0.4,
-            (1 - dropped_ratio) * 0.3  # Reward low drop rate
-        ]
-        
-        # Negative factors decrease trust
-        negative_factors = [
-            dropped_ratio * 0.3  # Penalize dropped goals
-        ]
-        
-        return sum(positive_factors) - sum(negative_factors)
 
     ### Helper methods
 
