@@ -378,18 +378,20 @@ class FakeNewsAgent:
     # transition to the next state specified by the state values!
     def procedural_state_transition(self) -> None:
         """Advance to the next logical state in the processing pipeline."""
-        logging.debug("procedural_state_transition, ")
         state_order = [state for state in AgentState]
         current_index = state_order.index(self.state)
+        logging.info(f"following procedural_state_transition: State {current_index} to {current_index+1}")
         if current_index < len(state_order) - 1:
-            self.transition_to_state(state_order[current_index + 1])
+            self.transition_to_state(state_order[current_index + 1]) # assume the plan list is ordered in sequential logical order
+        else:
+            logging.info(f"Completed procedural_state_transition: State {current_index}")
 
     # goals with is_active set to true
     def get_active_goals(self) -> List[Goal]:
         return [goal for goal in self.subgoals if goal.is_active]
     
     def deactivate_goals(self):
-        logging.debug(f"Deactivating Goals")
+        logging.info(f"Deactivating prior goals: {[goal.description for goal in self.get_active_goals()]}")
         for goal in self.subgoals:
             goal.is_active = False
             # a goal is dropped the state in its plane list is reached => still managed to carry out task (agent successfull)
@@ -411,13 +413,13 @@ class FakeNewsAgent:
     # goals excluded from active goals
     def get_suspended_goals(self) -> List[Goal]:
         """Return currently suspended goals."""
-        logging.debug(f"get_suspended_goals(), state: {self.state},")
-        return [goal for goal in self.subgoals if not goal.is_active]
+        suspended_goals =  [goal for goal in self.subgoals if not goal.is_active and goal.is_suspended]
+        logging.info(f"get_suspended_goals: {[goal.description for goal in suspended_goals]}")
+        return suspended_goals
 
     # A goal is activated when the current state is included in the goals states 
     def activate_relevant_goals(self) -> None:
         """Activate goals relevant to the current state."""
-        logging.debug(f"activate_relevant_goals")
         current_state_id = self.state.value
         for goal in self.subgoals:
             if goal.conditions:
@@ -432,19 +434,21 @@ class FakeNewsAgent:
         logging.info(f"activate_relevant_goals: {[goal.description for goal in self.get_active_goals()]}")
        
     # execute active goal(s)'s plan  
-    def pursue_active_goals(self) -> None:
-        logging.debug(f"Pursue_active_goals, state: {self.state}")
+    def adopt_active_goals(self) -> None:
         """Adopt plans for active goals."""
-        for goal in self.get_active_goals():
-            if goal.plan:
+        active_goals = self.get_active_goals()
+        logging.info(f"Adopt_active_goals: {[goal.description for goal in active_goals]}")
+        for goal in active_goals:
+            if goal.plan.steps:
                 self.execute_plan(goal.plan)
                 self.deactivate_goals()
+            else:
+                goal.is_achieved = True
                 
     # the next state is determined by the current goal(s)'s plan
     def execute_plan(self, plan: Plan) -> None:
         """Execute the steps in a plan."""
-        logging.debug(f"execute_plan, {self.state}")
-        next_state = plan.next_step()
+        logging.info(f"execute_plan, {self.state}")
         while (next_state := plan.next_step()) is not None:
             try:
                 self.execute_state_action(next_state)
@@ -456,7 +460,6 @@ class FakeNewsAgent:
     # state-action mapping
     def execute_state_action(self, state: AgentState) -> None:
         """Execute the appropriate action for the given state."""
-        logging.debug(f"execute state: {self.state}")
         action_map = {
             AgentState.IDLE : self.await_user,
             AgentState.INPUT_PROCESSING : self.process_input,
@@ -469,6 +472,7 @@ class FakeNewsAgent:
         
         if state in action_map.keys():
             action_map[state]()
+            logging.info(f"execute_state_action, state: {self.state}, action: {action_map[state]}, goals active: {[goal.description for goal in self.get_active_goals()]}")
         else:
             raise ValueError(f"No action defined for state {state}")
     
@@ -890,7 +894,7 @@ class FakeNewsAgent:
             return self.analysis_results
             
         except Exception as e:
-            self.logging.error(f"Error analyzing news item: {str(e)}")
+            logging.error(f"Error analyzing news item: {str(e)}")
             self.transition_to_state(AgentState.SELF_EVALUATION)
             raise
 
