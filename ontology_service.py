@@ -4,6 +4,9 @@ import yaml
 from groq import Groq
 import os
 from functools import reduce
+
+with open("config.yaml", "r") as file:
+    config = yaml.safe_load(file)
 class OntologyService:
     """Service for handling all LLM-related operations."""
 
@@ -12,12 +15,11 @@ class OntologyService:
         os.environ["GROQ_API_KEY"] = config['keys']['llm_api_key']
         owlready2.JAVA_EXE = config['paths']['protege_path']
         self.path = config['paths']['ontology_local_path']
-        #self.ontology = get_ontology(r"C:\Users\lucmi\Documents\Opdrachten\IAG-Project\intelligent_agents.rdf").load()
         self.ontology = get_ontology(self.path).load() # Load the ontology
-        #self.ontology.load()
         
         with self.ontology: # Run the reasoner to obtain the inferences
             sync_reasoner()
+            
         #query = [["class", "Healthy"], ["class", "Sport"]]
         query = [["objectproperty", ["Eats", "Cookie"]]]
         self.reasoning(query)
@@ -266,9 +268,3 @@ class OntologyService:
         # Return the list of instances that have the specified property linking 
         # them to the specified argument
         return objectlist
-
-    
-    def evaluate_news_item():
-        """Evaluate claims against evidence."""
-        # helpers methods must be private if we want to hide the logic fro the agent
-        pass
