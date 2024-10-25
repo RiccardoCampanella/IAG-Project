@@ -447,7 +447,7 @@ class FakeNewsAgent:
                 learning_score += (1 - metrics.get('dropped_goals_ratio', 0.5)) * 0.2
         
         # Consider self-evaluation states in path
-        eval_states = {AgentState.SELF_EVALUATION, AgentState.LEARNING}
+        eval_states = {AgentState.SELF_EVALUATION}
         if any(s in path for s in eval_states):
             learning_score *= 1.2  # Bonus for paths including learning opportunities
         
@@ -648,7 +648,6 @@ class FakeNewsAgent:
         return [goal for goal in self.subgoals if goal.is_active]
     
     def deactivate_goals(self):
-        logging.info(f"Deactivating prior goals: {[goal.description for goal in self.get_active_goals()]}")
         for goal in self.subgoals:
             goal.is_active = False
             # a goal is dropped the state in its plane list is reached => still managed to carry out task (agent successfull)
@@ -666,7 +665,9 @@ class FakeNewsAgent:
                  goal.is_achievable = False
                  goal.is_dropped = True
                  goal.plan.steps = [] # Dastani paper's rule 
-    
+        logging.info(f"\n Deactivating prior goals: {[goal.description for goal in self.subgoals]}, \n achieved: {[goal.description for goal in self.subgoals if goal.is_achieved]}, \n suspended: {[goal.description for goal in self.subgoals if goal.is_suspended]}")
+
+
     # goals excluded from active goals
     def get_suspended_goals(self) -> List[Goal]:
         """Return currently suspended goals."""
@@ -1054,7 +1055,7 @@ class FakeNewsAgent:
         # Analyze transitions in agent memory for repetitive states
         if len(self.agent_memory) > 1:
             state_sequence = [goal for memory_state in self.agent_memory 
-                            for goal in memory_state if goal.is_active]
+                            for goal in memory_state if isinstance(goal, Goal) and goal.is_active]
             state_counts = {}
             for goal in state_sequence:
                 if goal.plan.steps:
@@ -1120,7 +1121,6 @@ class FakeNewsAgent:
 
     def analyze_news_item(self) -> dict:
         """Main method to analyze a news item."""
-        self.current_news_item = "Running is good for your health"
         self.analysis_results = {}
         
         try:
