@@ -132,8 +132,15 @@ class LLMService:
     def query(self, current_news_item):
         self.statement = current_news_item
 
-        self.get_LLM_queries()
-        self.get_LLM_arguments()
+        
+        for i in range(3):
+            self.get_LLM_queries()
+            self.get_LLM_arguments()
+            if self.lstLLMArguments != []: 
+                print(self.lstLLMQueries)
+                break
+
+
 
         if self.showResults: 
             for i in self.lstLLMArguments:
@@ -149,6 +156,7 @@ class LLMService:
         if self.showResults: 
             print([str(arg["boolCounterArgument"] == False) + " " + str(arg["score"]) for arg in args+counter_args])
             print(trust)
+        
         return args+counter_args, trust
 
     def get_trust(self, args):
@@ -223,4 +231,4 @@ class LLMService:
 
 if __name__ == '__main__':
     LLM = LLMService()
-    LLM.query("Swimming is good for your health")
+    LLM.query('Running is good for your health')
