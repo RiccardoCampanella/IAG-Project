@@ -15,10 +15,10 @@ class AgentState(Enum):
     EVIDENCE_ANALYSIS = 3
     REASONING = 4
     RECOMMENDATION_FORMULATION = 5
-    OUTPUT_GENERATION = 6
-    SELF_EVALUATION = 7
-    LEARNING = 8
-    ERROR = 9
+    #OUTPUT_GENERATION = 6
+    SELF_EVALUATION = 6
+    LEARNING = 7
+    ERROR = 8
 
 @dataclass
 class Plan:
@@ -83,9 +83,9 @@ class FakeNewsAgent:
             AgentState.INPUT_PROCESSING,
             AgentState.INFORMATION_GATHERING,
             AgentState.EVIDENCE_ANALYSIS,
+            AgentState.REASONING,
             AgentState.RECOMMENDATION_FORMULATION,
             AgentState.SELF_EVALUATION,
-            AgentState.REASONING,
             AgentState.LEARNING,
             AgentState.ERROR
         ])
@@ -564,8 +564,8 @@ class FakeNewsAgent:
         print(self.analysis_results['reasoning_results'])
 
         self.analysis_results['recommendation'] = (f"The statement {self.current_news_item} is determined to be "+ \
-            f"{self.analysis_results['reasoning_results']["isTrue"]}  with a confidence margin of " + \
-            f"{self.analysis_results['reasoning_results']["confidence_percentage"]}%")
+            f"{self.analysis_results['reasoning_results']['isTrue']} with a confidence margin of " + \
+            f"{self.analysis_results['reasoning_results']['confidence_percentage']}%")
         
         self.analysis_results['final_output'] = {
             'verification_result': self.analysis_results['recommendation'],
@@ -878,7 +878,7 @@ class FakeNewsAgent:
                 # re-initialise goals in case of fail
                 if not active_goals:
                     # end of the cycle 
-                    if self.state == AgentState.OUTPUT_GENERATION:
+                    if self.state == AgentState.RECOMMENDATION_FORMULATION:
                         self.transition_to_state(AgentState.IDLE)
                     # automated plan rules failed, procedural state generation
                     else:
