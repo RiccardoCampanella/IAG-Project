@@ -6,6 +6,7 @@ from ontology_service import OntologyService
 from llm_service import LLMService
 import logging
 from arguments_examples import argument_examples
+from collections import deque
 
 class AgentState(Enum):
     IDLE = 0
@@ -14,16 +15,17 @@ class AgentState(Enum):
     EVIDENCE_ANALYSIS = 3
     REASONING = 4
     RECOMMENDATION_FORMULATION = 5
-    OUTPUT_GENERATION = 6
-    SELF_EVALUATION = 7
-    LEARNING = 8
-    ERROR = 9
+    #OUTPUT_GENERATION = 6
+    SELF_EVALUATION = 6
+    LEARNING = 7
+    ERROR = 8
 
 @dataclass
 class Plan:
     steps: List[AgentState]
     current_step: int = 0
     success_criteria: Dict[str, float] = None
+    is_suspended = False
     
     def next_step(self) -> Optional[AgentState]:
         if self.current_step < len(self.steps):
@@ -43,36 +45,34 @@ class Goal:
     is_active: bool = False
     is_dropped: bool = False
     is_achieved: bool = False
-    is_unachievable: bool = False
+    is_achievable: bool = False
     is_suspended: bool = False
     is_replanned: bool = False
 
     
     def __hash__(self):
         return hash(self.description)
+    
+
+logging.basicConfig(
+    level=logging.INFO,  # Set the logging level to DEBUG to capture all types of log messages
+    format='%(asctime)s - %(levelname)s - %(message)s',  # Specify the log message format
+    handlers=[logging.StreamHandler()]  # Output log messages to the console
+)
+logger = logging.getLogger(__name__)
 
 class FakeNewsAgent:
+
     def __init__(self, ontology_service: OntologyService=None, llm_service: LLMService=None):
-        logging.basicConfig(
-            level=logging.INFO,  # Set the logging level to DEBUG to capture all types of log messages
-            format='%(asctime)s - %(levelname)s - %(message)s',  # Specify the log message format
-            handlers=[logging.StreamHandler()]  # Output log messages to the console
-        )
-
-        self.state = AgentState.IDLE
         self.ontology_service = ontology_service
-
-        self.llm_service = LLMService()
-        self.logger = logging.getLogger(__name__)
-
+        self.llm_service = llm_service
         self.analysis_results = argument_examples #TODO remove these variables when done with testing.
         self.current_news_item = "Eating spicy food causes hair loss" #TODO remove these variables when done with testing.
-        #self.transition_from_state = np.full(len(AgentState), False)
-        
+        self.state = AgentState.IDLE
         self.initialise_goals()
         self.hyperparameters = self.initialise_hyperparameters()
-        self.curr_mismatch_count = 0
-        self.prior_mismatch_count = 0
+        self.agent_memory = self.subgoals.copy()
+        self.hyperparameters = self.initialise_hyperparameters()
 
     def initialise_goals(self):
         """Initialize the main goal and subgoals with proper plans."""
@@ -83,9 +83,9 @@ class FakeNewsAgent:
             AgentState.INPUT_PROCESSING,
             AgentState.INFORMATION_GATHERING,
             AgentState.EVIDENCE_ANALYSIS,
+            AgentState.REASONING,
             AgentState.RECOMMENDATION_FORMULATION,
             AgentState.SELF_EVALUATION,
-            AgentState.REASONING,
             AgentState.LEARNING,
             AgentState.ERROR
         ])
@@ -160,89 +160,306 @@ class FakeNewsAgent:
             conditions = {}, # adopted from any prior, current
             plan=Plan(steps=[AgentState.ERROR])
         ),"""
-
        
-
     # transitioning once the prior state conditions are satisfied 
     def transition_to_state(self, new_state: AgentState) -> None:
         """Transition to a new state and handle related goal updates."""
-        logging.debug(f"Transitioning from {self.state} to {new_state}")
-        if True:#self.transition_from_state[self.state.value]:
-            self.logger.info(f"Transitioning from {self.state} to {new_state}")
-            self.state = new_state
-            self.deactivate_goals()
-            self.activate_relevant_goals()
-        else:
-            self.logger.info(f"Failed Transitioning from {self.state} to {new_state}")
+        logging.info(f"Transitioning from {self.state} to {new_state}")
+        self.agent_memory.add(frozenset(self.subgoals.copy())) # update agent memory
+        self.deactivate_goals() #TODO check assumption 
+        self.state = new_state
+        self.activate_relevant_goals()
+        self.agent_memory.add(frozenset(self.subgoals.copy()))
+        if not self.get_active_goals():
+            logging.info(f"Failed Transitioning from {self.state} to {new_state}")
     
+    def identify_next_state(self) -> AgentState:
+        """
+        Identify the next state based on goal conditions, plan steps, and state transitions.
+        Uses a graph-based approach to find the optimal path to the final state while
+        ensuring necessary goals are completed.
+        
+        Returns:
+            AgentState: The next state the agent should transition to
+        """
+        logging.debug(f"Identifying next state from current state: {self.state}")
+        
+        # Build state transition graph from goals and conditions
+        state_graph = self._build_state_graph()
+        
+        # Get candidate next states based on current state and goal conditions
+        candidate_states = self._get_candidate_states()
+        
+        if not candidate_states:
+            logging.warning("No candidate states found, using procedural fallback")
+            return self._get_procedural_next_state()
+        
+        # Find paths to final state for each candidate
+        paths_to_final = {}
+        final_states = {AgentState.RECOMMENDATION_FORMULATION}
+        
+        for candidate in candidate_states:
+            shortest_path = self._find_shortest_path(
+                state_graph,
+                candidate,
+                final_states
+            )
+            if shortest_path:
+                paths_to_final[candidate] = shortest_path
+        
+        # Select optimal next state based on path analysis
+        next_state = self._select_optimal_state(paths_to_final)
+        
+        logging.info(f"Selected next state: {next_state}")
+        return next_state
+
+    def _build_state_graph(self) -> Dict[AgentState, Set[AgentState]]:
+        """
+        Build a graph of state transitions from goal conditions and plans.
+        
+        Returns:
+            Dict[AgentState, Set[AgentState]]: Graph representing possible state transitions
+        """
+        state_graph = {state: set() for state in AgentState}
+        
+        # Add transitions from goal conditions
+        for goal in self.subgoals:
+            if goal.conditions:
+                for prior_state, current_state in goal.conditions.items():
+                    state_graph[prior_state].add(current_state)
+            
+            # Add transitions from plan steps
+            if goal.plan and goal.plan.steps:
+                for i in range(len(goal.plan.steps) - 1):
+                    current_step = goal.plan.steps[i]
+                    next_step = goal.plan.steps[i + 1]
+                    state_graph[current_step].add(next_step)
+        
+        return state_graph
+
+    def _get_candidate_states(self) -> Set[AgentState]:
+        """
+        Get valid candidate states based on current state and goal conditions.
+        
+        Returns:
+            Set[AgentState]: Set of possible next states
+        """
+        candidates = set()
+        current_state_id = self.state.value
+        
+        # Add states from goal conditions
+        for goal in self.subgoals:
+            if goal.conditions:
+                for prior_state, curr_state in goal.conditions.items():
+                    if prior_state == self.state:
+                        candidates.add(curr_state)
+            
+            # Add states from plan steps
+            if goal.plan and goal.plan.steps:
+                try:
+                    current_idx = goal.plan.steps.index(self.state)
+                    if current_idx < len(goal.plan.steps) - 1:
+                        candidates.add(goal.plan.steps[current_idx + 1])
+                except ValueError:
+                    continue
+        
+        return candidates
+
+    def _find_shortest_path(
+        self,
+        graph: Dict[AgentState, Set[AgentState]],
+        start: AgentState,
+        end_states: Set[AgentState]
+    ) -> Optional[List[AgentState]]:
+        """
+        Find shortest path from start state to any of the end states using BFS.
+        
+        Args:
+            graph: State transition graph
+            start: Starting state
+            end_states: Set of possible end states
+        
+        Returns:
+            Optional[List[AgentState]]: Shortest path if found, None otherwise
+        """
+        if start in end_states:
+            return [start]
+        
+        queue = deque([(start, [start])])
+        visited = {start}
+        
+        while queue:
+            current_state, path = queue.popleft()
+            
+            for next_state in graph[current_state]:
+                if next_state in end_states:
+                    return path + [next_state]
+                
+                if next_state not in visited:
+                    visited.add(next_state)
+                    queue.append((next_state, path + [next_state]))
+        
+        return None
+
+    def _select_optimal_state(
+        self,
+        paths: Dict[AgentState, List[AgentState]]
+    ) -> AgentState:
+        """
+        Select the optimal next state based on path analysis and goal completion.
+        
+        Args:
+            paths: Dictionary mapping candidate states to their paths to final state
+        
+        Returns:
+            AgentState: Selected next state, or procedural fallback if no valid paths
+        """
+        if not paths:
+            return self._get_procedural_next_state()
+        
+        # Score each path based on multiple criteria
+        path_scores = {}
+        for state, path in paths.items():
+            score = self._calculate_path_score(state, path)
+            path_scores[state] = score
+        
+        # Select state with highest score
+        return max(path_scores.items(), key=lambda x: x[1])[0]
+
+    def _calculate_path_score(
+        self,
+        state: AgentState,
+        path: List[AgentState]
+    ) -> float:
+        """
+        Calculate score for a path based on multiple criteria.
+        
+        Args:
+            state: Candidate next state
+            path: Path from state to final state
+        
+        Returns:
+            float: Score for the path
+        """
+        # Base score inversely proportional to path length
+        score = 1.0 / len(path)
+        
+        # Bonus for completing more goals
+        goals_completed = sum(
+            1 for goal in self.subgoals
+            if all(s in path for s in goal.plan.steps)
+        )
+        score += 0.2 * (goals_completed / len(self.subgoals))
+        
+        # Penalty for suspended goals
+        if any(goal.is_suspended and state in goal.plan.steps 
+            for goal in self.subgoals):
+            score -= 0.1
+        
+        # Bonus for following natural progression
+        if state.value == self.state.value + 1:
+            score += 0.1
+        
+        return score
+
+    def _get_procedural_next_state(self) -> AgentState:
+        """
+        Get next state based on procedural order as fallback.
+        
+        Returns:
+            AgentState: Next state in procedural order
+        """
+        current_idx = list(AgentState).index(self.state)
+        if current_idx < len(AgentState) - 1:
+            return list(AgentState)[current_idx + 1]
+        return AgentState.IDLE                 
+
+
     # transition to the next state specified by the state values!
     def procedural_state_transition(self) -> None:
         """Advance to the next logical state in the processing pipeline."""
-        logging.debug("procedural_state_transition, ")
         state_order = [state for state in AgentState]
         current_index = state_order.index(self.state)
+        logging.info(f"following procedural_state_transition: State {current_index} to {current_index+1}")
         if current_index < len(state_order) - 1:
-            self.transition_to_state(state_order[current_index + 1])
+            self.transition_to_state(state_order[current_index + 1]) # assume the plan list is ordered in sequential logical order
+        else:
+            logging.info(f"Completed procedural_state_transition: State {current_index}")
 
     # goals with is_active set to true
     def get_active_goals(self) -> List[Goal]:
         return [goal for goal in self.subgoals if goal.is_active]
     
     def deactivate_goals(self):
-        logging.debug(f"Deactivating Goals")
+        logging.info(f"Deactivating prior goals: {[goal.description for goal in self.get_active_goals()]}")
         for goal in self.subgoals:
             goal.is_active = False
+            # a goal is dropped the state in its plane list is reached => still managed to carry out task (agent successfull)
+            if goal.plan.steps:
+                if goal.plan.steps[-1] == self.state: # assume the plan list is ordered in sequential logical order
+                    goal.is_dropped = True
+                    goal.is_achieved = True
+            elif goal.is_achievable:
+                 # if a goal is not reached it can be resumed later (unless unachievable or irrelevant)
+                 goal.is_suspended = True
+                 goal.plan.is_suspended = True
+                 goal.plan.current_step = goal.plan.steps.index(self.state)
+            else:
+                 goal.is_suspended = False
+                 goal.is_achievable = False
+                 goal.is_dropped = True
+                 goal.plan.steps = [] # Dastani paper's rule 
     
     # goals excluded from active goals
     def get_suspended_goals(self) -> List[Goal]:
         """Return currently suspended goals."""
-        logging.debug(f"get_suspended_goals(), state: {self.state},")
-        return [goal for goal in self.subgoals if not goal.is_active]
+        suspended_goals =  [goal for goal in self.subgoals if not goal.is_active and goal.is_suspended]
+        logging.info(f"get_suspended_goals: {[goal.description for goal in suspended_goals]}")
+        return suspended_goals
 
     # A goal is activated when the current state is included in the goals states 
     def activate_relevant_goals(self) -> None:
         """Activate goals relevant to the current state."""
-        logging.debug(f"activate_relevant_goals")
         current_state_id = self.state.value
         for goal in self.subgoals:
             if goal.conditions:
-                for prior_state in goal.conditions.keys():
-                    
-                    if current_state_id - 1 == prior_state.value:
-                        goal.is_active = True
-                        
+                if not goal.is_suspended and not goal.plan:
+                    logging.info(f"Failed to activate_relevant_goals")
+                else:
+                    for prior_state in goal.conditions.keys():
+                        if current_state_id - 1 == prior_state.value:
+                            goal.is_active = True
             else:
                 goal.is_active = True # can be activated with no conditions
+        logging.info(f"activate_relevant_goals: {[goal.description for goal in self.get_active_goals()]}")
        
-
     # execute active goal(s)'s plan  
-    def pursue_active_goals(self) -> None:
-        logging.debug(f"Pursue_active_goals, state: {self.state}")
+    def adopt_active_goals(self) -> None:
         """Adopt plans for active goals."""
-        for goal in self.get_active_goals():
-            if goal.plan:
+        active_goals = self.get_active_goals()
+        logging.info(f"Adopt_active_goals: {[goal.description for goal in active_goals]}")
+        for goal in active_goals:
+            if goal.plan.steps:
                 self.execute_plan(goal.plan)
                 self.deactivate_goals()
+            else:
+                goal.is_achieved = True
                 
     # the next state is determined by the current goal(s)'s plan
     def execute_plan(self, plan: Plan) -> None:
         """Execute the steps in a plan."""
-        logging.debug(f"execute_plan, {self.state}")
-        next_state = plan.next_step()
-        while next_state is not None:
-            #try:
-            
-            self.execute_state_action(next_state)
-            #except Exception as e:
-            #    self.logger.error(f"Error executing state {next_state}: {str(e)}")
-            #    #self.transition_to_state(AgentState.SELF_EVALUATION)
-            next_state = plan.next_step()
-            break
+        logging.info(f"execute_plan, {self.state}")
+        while (next_state := plan.next_step()) is not None:
+            try:
+                self.execute_state_action(next_state)
+            except Exception as e:
+                logger.error(f"Error executing state {next_state}: {str(e)}")
+                #self.transition_to_state(AgentState.SELF_EVALUATION)
+                break
         
     # state-action mapping
     def execute_state_action(self, state: AgentState) -> None:
         """Execute the appropriate action for the given state."""
-        logging.debug(f"execute state: {self.state}")
         action_map = {
             AgentState.IDLE : self.await_user,
             AgentState.INPUT_PROCESSING : self.process_input,
@@ -255,6 +472,7 @@ class FakeNewsAgent:
         
         if state in action_map.keys():
             action_map[state]()
+            logging.info(f"execute_state_action, state: {self.state}, action: {action_map[state]}, goals active: {[goal.description for goal in self.get_active_goals()]}")
         else:
             raise ValueError(f"No action defined for state {state}")
     
@@ -279,6 +497,7 @@ class FakeNewsAgent:
     def process_input(self) -> None:
         """Validate and process the input news item."""
         logging.debug(f"process_input, state : {self.state}")
+        
         if not self.current_news_item:
             raise ValueError("No news item to process")
         
@@ -299,11 +518,10 @@ class FakeNewsAgent:
         print("Gathering information")
         if self.ontology_service:
             ontology_results = self.ontology_service.query(self.current_news_item)
-   
+
         try:
             llm_results, trust = self.llm_service.query(self.current_news_item)
         except Exception as e :print(e)
-      
         
         self.analysis_results['gathered_info'] = {
             'ontology_data': ontology_results,
@@ -316,35 +534,28 @@ class FakeNewsAgent:
     def analyze_evidence(self) -> None:
         """Analyze gathered evidence."""
         logging.debug(f"current_function: analyze_evidence, state : {self.state}")
-
-
         if 'gathered_info' not in self.analysis_results:
             raise ValueError("No gathered information to analyze")
         
-
         self.confidence = 0.5 # Set base confidence. 0.5 is neutral
         if self.analysis_results["gathered_info"]["llm_analysis"]["llm_args"] != []: # if there are LLM results
             llm_selftrust = self.analysis_results["gathered_info"]["llm_analysis"]["llm_selftrust"]
             trust_llm = self.hyperparameters["trust_llm"] * abs((llm_selftrust - 0.5)* 2) # Multiply trust in LLm by trust the llm has in itself
             self.calculate_confidence_score(trust_llm, llm_selftrust < 0.5) # Calculate confidence
-
         if self.analysis_results["gathered_info"]["ontology_data"] != None: # If there are ontology results
             self.calculate_confidence_score(self.hyperparameters["trust_ontology"], True)
-
         self.analysis_results['reasoning_results'] = {
             "isTrue" : self.confidence > 0.5, # if the confidence in the statement is larger than 0.5. Then the statement is true
             "confidence_percentage" : abs((self.confidence - 0.5)* 2 * 100) # Turn confidence in percentage
         }
        
-        
-
     def perform_goal_reasoning(self) -> None:
         """Perform reasoning based on analyzed evidence."""
         logging.debug(f"perform_reasoning, state : {self.state}")
         if 'evidence_analysis' not in self.analysis_results:
             raise ValueError("No analyzed evidence for reasoning")
         self.analysis_results['reasoning_results'] = self.reason_about_evidence()
-
+        
     def formulate_recommendation(self) -> None:
         """Formulate a recommendation based on reasoning."""
         logging.debug(f"formulate_recomendation, state: {self.state}, goals active ")
@@ -354,10 +565,9 @@ class FakeNewsAgent:
         print(self.analysis_results['reasoning_results'])
 
         self.analysis_results['recommendation'] = f"The statement {self.current_news_item} is determined to be "+ \
-            f"{self.analysis_results['reasoning_results']["isTrue"]} with a confidence margin of " + \
-            f"{self.analysis_results['reasoning_results']["confidence_percentage"]}%"
+            f"{self.analysis_results['reasoning_results']['isTrue']} with a confidence margin of " + \
+            f"{self.analysis_results['reasoning_results']['confidence_percentage']}%"
         
-       
         self.analysis_results['final_output'] = {
             'verification_result': self.analysis_results['recommendation'],
             'evidence_summary_for': [arg["text"] for arg in self.analysis_results["gathered_info"]["llm_analysis"]["llm_args"] if not arg["boolCounterArgument"]],
@@ -365,10 +575,6 @@ class FakeNewsAgent:
         }
         print(self.analysis_results["final_output"])
         
-        
-    
-        
-
     def perform_self_evaluation(self) -> None:
         """Perform self-evaluation of the analysis process."""
         logging.debug(f"perfrom_self_evaluation, state : {self.state}, goals active ")
@@ -376,7 +582,163 @@ class FakeNewsAgent:
             'process_complete': bool(self.analysis_results.get('final_output')),
             'areas_for_improvement': self.identify_improvements()
         }
+        self.learn_from_experience()
 
+    def mantain_readyness(self):
+        pass
+
+    def learn_from_experience(self) -> None:
+        """
+        Adjust hyperparameters based on self-evaluation results and performance metrics.
+        Called after perform_self_evaluation to tune the agent's behavior.
+        """
+        if not self.analysis_results.get('evaluation'):
+            logging.warning("No evaluation results available for learning")
+            return
+
+        logging.info("Starting learning process to adjust hyperparameters")
+        
+        # Extract evaluation metrics
+        evaluation = self.analysis_results['evaluation']
+        confidence_level = evaluation.get('confidence_level', 0)
+        process_complete = evaluation.get('process_complete', False)
+        
+        # Calculate performance metrics
+        dropped_goals_ratio = len([g for g in self.subgoals if g.is_dropped]) / len(self.subgoals)
+        suspended_goals_ratio = len(self.get_suspended_goals()) / len(self.subgoals)
+        achieved_goals_ratio = len([g for g in self.subgoals if g.is_achieved]) / len(self.subgoals)
+        
+        # Analyze information source reliability
+        llm_ontology_agreement = self._calculate_source_agreement()
+        
+        # Adjustment factors based on performance
+        adjustment_factors = {
+            'trust_ontology': self._calculate_ontology_adjustment(
+                achieved_goals_ratio,
+                suspended_goals_ratio,
+                llm_ontology_agreement
+            ),
+            'trust_llm': self._calculate_llm_adjustment(
+                achieved_goals_ratio,
+                confidence_level,
+                llm_ontology_agreement
+            ),
+            'trust_llm_vedant': self._calculate_vedant_adjustment(
+                dropped_goals_ratio,
+                confidence_level
+            )
+        }
+        
+        # Apply adjustments with learning rate and bounds
+        learning_rate = 0.1
+        for param, adjustment in adjustment_factors.items():
+            current_value = self.hyperparameters.get(param, 0.5)
+            new_value = current_value + (adjustment * learning_rate)
+            # Ensure values stay within [0.1, 0.9] range
+            new_value = max(0.1, min(0.9, new_value))
+            self.hyperparameters[param] = new_value
+            
+            logging.info(f"Adjusted {param}: {current_value:.3f} -> {new_value:.3f}")
+
+        # Store learning results for future reference
+        self.analysis_results['learning'] = {
+            'hyperparameter_adjustments': {
+                param: self.hyperparameters[param] for param in adjustment_factors.keys()
+            },
+            'performance_metrics': {
+                'achieved_goals_ratio': achieved_goals_ratio,
+                'dropped_goals_ratio': dropped_goals_ratio,
+                'suspended_goals_ratio': suspended_goals_ratio,
+                'confidence_level': confidence_level,
+                'llm_ontology_agreement': llm_ontology_agreement
+            }
+        }
+
+    def _calculate_source_agreement(self) -> float:
+        """
+        Calculate agreement level between LLM and Ontology sources.
+        Returns a value between 0 and 1.
+        """
+        if 'gathered_info' not in self.analysis_results:
+            return 0.5
+        
+        gathered_info = self.analysis_results['gathered_info']
+        ontology_data = gathered_info.get('ontology_data', {})
+        llm_analysis = gathered_info.get('llm_analysis', {})
+        
+        if not ontology_data or not llm_analysis:
+            return 0.5
+        
+        # Compare key findings between sources
+        # This is a simplified comparison - extend based on your specific data structure
+        try:
+            agreement_score = sum(
+                1 for k, v in ontology_data.items()
+                if k in llm_analysis and llm_analysis[k] == v
+            ) / len(ontology_data)
+            return agreement_score
+        except (AttributeError, ZeroDivisionError):
+            return 0.5
+
+    def _calculate_ontology_adjustment(
+        self,
+        achieved_ratio: float,
+        suspended_ratio: float,
+        source_agreement: float
+    ) -> float:
+        """Calculate adjustment for ontology trust based on performance metrics."""
+        # Positive factors increase trust
+        positive_factors = [
+            achieved_ratio * 0.4,  # Weight achievement heavily
+            source_agreement * 0.3  # Consider agreement with LLM
+        ]
+        
+        # Negative factors decrease trust
+        negative_factors = [
+            suspended_ratio * 0.3  # Penalize suspended goals
+        ]
+        
+        return sum(positive_factors) - sum(negative_factors)
+
+    def _calculate_llm_adjustment(
+        self,
+        achieved_ratio: float,
+        confidence: float,
+        source_agreement: float
+    ) -> float:
+        """Calculate adjustment for LLM trust based on performance metrics."""
+        # Positive factors increase trust
+        positive_factors = [
+            achieved_ratio * 0.3,
+            confidence * 0.3,
+            source_agreement * 0.2
+        ]
+        
+        # Negative factors decrease trust
+        negative_factors = [
+            (1 - confidence) * 0.2  # Penalize low confidence
+        ]
+        
+        return sum(positive_factors) - sum(negative_factors)
+
+    def _calculate_vedant_adjustment(
+        self,
+        dropped_ratio: float,
+        confidence: float
+    ) -> float:
+        """Calculate adjustment for Vedant-specific trust based on performance metrics."""
+        # Positive factors increase trust
+        positive_factors = [
+            confidence * 0.4,
+            (1 - dropped_ratio) * 0.3  # Reward low drop rate
+        ]
+        
+        # Negative factors decrease trust
+        negative_factors = [
+            dropped_ratio * 0.3  # Penalize dropped goals
+        ]
+        
+        return sum(positive_factors) - sum(negative_factors)
 
     ### Helper methods
 
@@ -405,21 +767,97 @@ class FakeNewsAgent:
 
         self.confidence = confidence
         return self.confidence
-        
-    
 
     def identify_improvements(self) -> List[str]:
-        """Identify areas for improvement in the analysis process."""
-        # areas of improvement includes the decisions taken by the agent that 
-        # - lead to drop a goal because unachievable
-        # - lead to suspend a goal
-        # - re-generate a new plan
-        # - repeat a state/action if not explicitly requets from user
-        # - type of llm prompt
-        # - type of ontology prompt
-        # - number of intereaction with user
-        # - 
-        return []
+        """
+        Identify areas for improvement in the analysis process based on agent memory,
+        goals state, and execution history.
+        
+        Returns:
+            List[str]: List of identified areas for improvement
+        """
+        improvements = []
+        
+        # Check for unachievable goals
+        dropped_goals = [goal for goal in self.subgoals if goal.is_dropped and not goal.is_achieved]
+        if dropped_goals:
+            improvements.append(
+                f"Unachievable goals detected: {', '.join(goal.description for goal in dropped_goals)}. "
+                "Consider adjusting goal conditions or required resources."
+            )
+        
+        # Check for suspended goals
+        suspended_goals = self.get_suspended_goals()
+        if suspended_goals:
+            improvements.append(
+                f"Suspended goals found: {', '.join(goal.description for goal in suspended_goals)}. "
+                "Review prerequisites and dependencies."
+            )
+        
+        # Analyze transitions in agent memory for repetitive states
+        if len(self.agent_memory) > 1:
+            state_sequence = [goal for memory_state in self.agent_memory 
+                            for goal in memory_state if goal.is_active]
+            state_counts = {}
+            for goal in state_sequence:
+                if goal.plan.steps:
+                    current_state = goal.plan.steps[goal.plan.current_step - 1] if goal.plan.current_step > 0 else goal.plan.steps[0]
+                    state_counts[current_state] = state_counts.get(current_state, 0) + 1
+                    
+            # Identify repeated states
+            repeated_states = {state: count for state, count in state_counts.items() 
+                            if count > 1}
+            if repeated_states:
+                improvements.append(
+                    f"Detected repeated states: {', '.join(f'{state.name}({count} times)' for state, count in repeated_states.items())}. "
+                    "Review state transition logic."
+                )
+        
+        # Check LLM and Ontology service usage
+        if hasattr(self, 'llm_service') and self.llm_service:
+            if self.hyperparameters.get('trust_llm', 0) < 0.7:
+                improvements.append(
+                    f"Low LLM trust score ({self.hyperparameters.get('trust_llm')}). "
+                    "Consider improving prompt engineering or model selection."
+                )
+        
+        if hasattr(self, 'ontology_service') and self.ontology_service:
+            if self.hyperparameters.get('trust_ontology', 0) < 0.8:
+                improvements.append(
+                    "Low ontology trust score. Review ontology query patterns "
+                    "and knowledge base completeness."
+                )
+        
+        # Check for replanned goals
+        replanned_goals = [goal for goal in self.subgoals if goal.is_replanned]
+        if replanned_goals:
+            improvements.append(
+                f"Goals requiring replanning: {', '.join(goal.description for goal in replanned_goals)}. "
+                "Review initial planning strategy."
+            )
+        
+        # Check analysis results completeness
+        if hasattr(self, 'analysis_results'):
+            missing_steps = []
+            expected_keys = {
+                'processed_input', 'gathered_info', 'evidence_analysis',
+                'reasoning_results', 'final_output', 'evaluation'
+            }
+            missing_keys = expected_keys - set(self.analysis_results.keys())
+            if missing_keys:
+                improvements.append(
+                    f"Incomplete analysis steps: {', '.join(missing_keys)}. "
+                    "Review process completion criteria."
+                )
+        
+        # If no improvements identified, suggest general enhancement
+        if not improvements:
+            improvements.append(
+                "No critical issues found. Consider enhancing knowledge base "
+                "and refining confidence scoring algorithms."
+            )
+        
+        return improvements
 
     ### Agent Test method
 
@@ -430,31 +868,30 @@ class FakeNewsAgent:
         
         try:
             self.transition_to_state(AgentState.INPUT_PROCESSING)
-            
             # iterate over states and stop at the end of the cycle
             while self.state != AgentState.IDLE:
+                next_state = self.identify_next_state()
+                self.transition_to_state(next_state)
+
                 # get active goals
-                
                 active_goals = self.get_active_goals()
                 
                 # re-initialise goals in case of fail
                 if not active_goals:
                     # end of the cycle 
-                    if self.state == AgentState.OUTPUT_GENERATION:
+                    if self.state == AgentState.RECOMMENDATION_FORMULATION:
                         self.transition_to_state(AgentState.IDLE)
                     # automated plan rules failed, procedural state generation
                     else:
                         self.procedural_state_transition()
                 
                 # pursue goal
-                self.pursue_active_goals()
-                
-               
-                
+                self.adopt_active_goals()
+            
             return self.analysis_results
             
         except Exception as e:
-            self.logger.error(f"Error analyzing news item: {str(e)}")
+            logging.error(f"Error analyzing news item: {str(e)}")
             self.transition_to_state(AgentState.SELF_EVALUATION)
             raise
 

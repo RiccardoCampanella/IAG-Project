@@ -23,7 +23,7 @@ class LLMService:
         self.model = config['model_specs']['model_type'] 
         self.model_temperature = config['model_specs']['temperature']
         self.showResults = False
-
+        
         self.lstLLMQueries = []
 
     def get_LLM_queries(self):
@@ -32,7 +32,6 @@ class LLMService:
         ' into a question? Please make the second question a negation of the first without using the word "not". When it is a negation of the statement add "(negation)" to the end. Keep the answer concise.'
         
         LLMresponse = self.LLM_query(LLMprompt)
-        
         if self.showResults: print(LLMresponse)
         lstQuestions = self.extract_text(LLMresponse)
         
@@ -47,7 +46,6 @@ class LLMService:
             self.lstLLMQueries.append({'query':llmQuery,'isNegated':dictQuestion["isNegated"]})
         
     def extract_information(self, text):
-
         pattern = re.compile(r'\d+\.\s*(\*\*(.*?)\*\*)?\s*(.*?):\s*(.+?)\s+\((score|Score):\s+(\d+)\/10.*?\)', re.DOTALL)
     
         evidence_for = []
@@ -101,7 +99,7 @@ class LLMService:
                 print(query["query"])
                 print(LLMresponse)
             lstArguments = self.extract_information(LLMresponse)
-            
+
             for dictArgument in lstArguments:
                 
                 if query["isNegated"] != dictArgument["boolCounterArgument"]:
@@ -145,20 +143,18 @@ class LLMService:
         if self.showResults: 
             for i in self.lstLLMArguments:
                 print(i)
-
         counter_args = [arg for arg in self.lstLLMArguments if not arg["boolCounterArgument"]]
         args = [arg for arg in self.lstLLMArguments if arg["boolCounterArgument"]]
-
         counter_args = self.compare_arguments(counter_args)
         args = self.compare_arguments(args)
-
+        
         trust = self.get_trust(args+counter_args)
         if self.showResults: 
             print([str(arg["boolCounterArgument"] == False) + " " + str(arg["score"]) for arg in args+counter_args])
             print(trust)
         
         return args+counter_args, trust
-
+    
     def get_trust(self, args):
         trust = 0.5
         for arg in args:
@@ -166,7 +162,6 @@ class LLMService:
                 trust = trust * (1-arg["score"]/10)
             else:
                 trust = trust * (1/(1-arg["score"]/10))
-
         if trust > 1: 
             trust = 0.5
             for arg in args:
@@ -177,6 +172,7 @@ class LLMService:
             trust = 1 - trust
         return trust
 
+    
     def LLM_query(self, LLMQuery): # Returns the answer to a given prompt from the LLM
         if type(LLMQuery) != str: return "ERROR! LLMQuery should be a string"
         chat_completion = self.client.chat.completions.create(
@@ -201,14 +197,14 @@ class LLMService:
 
         # Step 2: Compute cosine similarity
         cosine_sim_matrix = cosine_similarity(sentence_vectors)
-        
+
         # Step 3: Apply a threshold to create a similarity graph (adjacency matrix)
         threshold = 0.25
         similarity_graph = (cosine_sim_matrix >= threshold).astype(int)
-       
+
         # Step 4: Find connected components (groups of similar sentences)
         n_components, labels = connected_components(csgraph=similarity_graph, directed=False, return_labels=True)
-       
+
         # Step 5: Group sentences by their component labels
         grouped_sentences = {}
         for i, label in enumerate(labels):
@@ -227,8 +223,11 @@ class LLMService:
             
         
         return arg_list
-        
+            
+
+
 
 if __name__ == '__main__':
     LLM = LLMService()
-    LLM.query('Running is good for your health')
+    #
+    LLM.query("Swimming is good for your health")
