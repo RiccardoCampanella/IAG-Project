@@ -6,6 +6,7 @@ from ontology_service import OntologyService
 from llm_service import LLMService
 import logging
 from arguments_examples import argument_examples
+from collections import deque
 
 class AgentState(Enum):
     IDLE = 0
@@ -158,7 +159,6 @@ class FakeNewsAgent:
             conditions = {}, # adopted from any prior, current
             plan=Plan(steps=[AgentState.ERROR])
         ),"""
-
        
     # transitioning once the prior state conditions are satisfied 
     def transition_to_state(self, new_state: AgentState) -> None:
@@ -172,6 +172,229 @@ class FakeNewsAgent:
         if not self.get_active_goals():
             logger.info(f"Failed Transitioning from {self.state} to {new_state}")
     
+    """
+    def identify_next_state(self):
+        Advance to the next goal-oriented state in the processing pipeline.
+        # retrieve candidates states with their plan steps
+        candidate_states = {}
+        current_state_id = self.state.value
+        for goal in self.subgoals:
+            if goal.conditions:
+                for prior_state, curr_state in goal.conditions.items():
+                    if current_state_id == curr_state:
+                        candidate_states[self.state] = goal.plan.steps[0]
+
+        # select the candidate based on shortest path or cost with min requiremeent of completeness (passed through all goals)
+        final_state = AgentState.RECOMMENDATION_FORMULATION
+        for candidate_state, plan_step in candidate_states:
+            candidate_found = 
+            while next_plan_step == final_state:
+                for goal in self.subgoals:
+                    next_plan_step = goal.conditions[plan_step]
+                    if final_state == goal.plan.steps:
+    """
+    def identify_next_state(self) -> AgentState:
+        """
+        Identify the next state based on goal conditions, plan steps, and state transitions.
+        Uses a graph-based approach to find the optimal path to the final state while
+        ensuring necessary goals are completed.
+        
+        Returns:
+            AgentState: The next state the agent should transition to
+        """
+        logging.debug(f"Identifying next state from current state: {self.state}")
+        
+        # Build state transition graph from goals and conditions
+        state_graph = self._build_state_graph()
+        
+        # Get candidate next states based on current state and goal conditions
+        candidate_states = self._get_candidate_states()
+        
+        if not candidate_states:
+            logging.warning("No candidate states found, using procedural fallback")
+            return self._get_procedural_next_state()
+        
+        # Find paths to final state for each candidate
+        paths_to_final = {}
+        final_states = {AgentState.RECOMMENDATION_FORMULATION}
+        
+        for candidate in candidate_states:
+            shortest_path = self._find_shortest_path(
+                state_graph,
+                candidate,
+                final_states
+            )
+            if shortest_path:
+                paths_to_final[candidate] = shortest_path
+        
+        # Select optimal next state based on path analysis
+        next_state = self._select_optimal_state(paths_to_final)
+        
+        logging.info(f"Selected next state: {next_state}")
+        return next_state
+
+    def _build_state_graph(self) -> Dict[AgentState, Set[AgentState]]:
+        """
+        Build a graph of state transitions from goal conditions and plans.
+        
+        Returns:
+            Dict[AgentState, Set[AgentState]]: Graph representing possible state transitions
+        """
+        state_graph = {state: set() for state in AgentState}
+        
+        # Add transitions from goal conditions
+        for goal in self.subgoals:
+            if goal.conditions:
+                for prior_state, current_state in goal.conditions.items():
+                    state_graph[prior_state].add(current_state)
+            
+            # Add transitions from plan steps
+            if goal.plan and goal.plan.steps:
+                for i in range(len(goal.plan.steps) - 1):
+                    current_step = goal.plan.steps[i]
+                    next_step = goal.plan.steps[i + 1]
+                    state_graph[current_step].add(next_step)
+        
+        return state_graph
+
+    def _get_candidate_states(self) -> Set[AgentState]:
+        """
+        Get valid candidate states based on current state and goal conditions.
+        
+        Returns:
+            Set[AgentState]: Set of possible next states
+        """
+        candidates = set()
+        current_state_id = self.state.value
+        
+        # Add states from goal conditions
+        for goal in self.subgoals:
+            if goal.conditions:
+                for prior_state, curr_state in goal.conditions.items():
+                    if prior_state == self.state:
+                        candidates.add(curr_state)
+            
+            # Add states from plan steps
+            if goal.plan and goal.plan.steps:
+                try:
+                    current_idx = goal.plan.steps.index(self.state)
+                    if current_idx < len(goal.plan.steps) - 1:
+                        candidates.add(goal.plan.steps[current_idx + 1])
+                except ValueError:
+                    continue
+        
+        return candidates
+
+    def _find_shortest_path(
+        self,
+        graph: Dict[AgentState, Set[AgentState]],
+        start: AgentState,
+        end_states: Set[AgentState]
+    ) -> Optional[List[AgentState]]:
+        """
+        Find shortest path from start state to any of the end states using BFS.
+        
+        Args:
+            graph: State transition graph
+            start: Starting state
+            end_states: Set of possible end states
+        
+        Returns:
+            Optional[List[AgentState]]: Shortest path if found, None otherwise
+        """
+        if start in end_states:
+            return [start]
+        
+        queue = deque([(start, [start])])
+        visited = {start}
+        
+        while queue:
+            current_state, path = queue.popleft()
+            
+            for next_state in graph[current_state]:
+                if next_state in end_states:
+                    return path + [next_state]
+                
+                if next_state not in visited:
+                    visited.add(next_state)
+                    queue.append((next_state, path + [next_state]))
+        
+        return None
+
+    def _select_optimal_state(
+        self,
+        paths: Dict[AgentState, List[AgentState]]
+    ) -> AgentState:
+        """
+        Select the optimal next state based on path analysis and goal completion.
+        
+        Args:
+            paths: Dictionary mapping candidate states to their paths to final state
+        
+        Returns:
+            AgentState: Selected next state, or procedural fallback if no valid paths
+        """
+        if not paths:
+            return self._get_procedural_next_state()
+        
+        # Score each path based on multiple criteria
+        path_scores = {}
+        for state, path in paths.items():
+            score = self._calculate_path_score(state, path)
+            path_scores[state] = score
+        
+        # Select state with highest score
+        return max(path_scores.items(), key=lambda x: x[1])[0]
+
+    def _calculate_path_score(
+        self,
+        state: AgentState,
+        path: List[AgentState]
+    ) -> float:
+        """
+        Calculate score for a path based on multiple criteria.
+        
+        Args:
+            state: Candidate next state
+            path: Path from state to final state
+        
+        Returns:
+            float: Score for the path
+        """
+        # Base score inversely proportional to path length
+        score = 1.0 / len(path)
+        
+        # Bonus for completing more goals
+        goals_completed = sum(
+            1 for goal in self.subgoals
+            if all(s in path for s in goal.plan.steps)
+        )
+        score += 0.2 * (goals_completed / len(self.subgoals))
+        
+        # Penalty for suspended goals
+        if any(goal.is_suspended and state in goal.plan.steps 
+            for goal in self.subgoals):
+            score -= 0.1
+        
+        # Bonus for following natural progression
+        if state.value == self.state.value + 1:
+            score += 0.1
+        
+        return score
+
+    def _get_procedural_next_state(self) -> AgentState:
+        """
+        Get next state based on procedural order as fallback.
+        
+        Returns:
+            AgentState: Next state in procedural order
+        """
+        current_idx = list(AgentState).index(self.state)
+        if current_idx < len(AgentState) - 1:
+            return list(AgentState)[current_idx + 1]
+        return AgentState.IDLE                 
+
+
     # transition to the next state specified by the state values!
     def procedural_state_transition(self) -> None:
         """Advance to the next logical state in the processing pipeline."""
@@ -227,9 +450,9 @@ class FakeNewsAgent:
                     for prior_state in goal.conditions.keys():
                         if current_state_id - 1 == prior_state.value:
                             goal.is_active = True
+            else:
+                goal.is_active = True # can be activated with no conditions
         logging.info(f"activate_relevant_goals: {[goal.description for goal in self.get_active_goals()]}")
-            #else:
-                #goal.is_active = True # can be activated with no conditions
        
     # execute active goal(s)'s plan  
     def adopt_active_goals(self) -> None:
@@ -259,7 +482,7 @@ class FakeNewsAgent:
     def execute_state_action(self, state: AgentState) -> None:
         """Execute the appropriate action for the given state."""
         action_map = {
-            AgentState.IDLE : self.print_ready,
+            AgentState.IDLE : self.mantain_readyness,
             AgentState.INPUT_PROCESSING : self.process_input,
             AgentState.INFORMATION_GATHERING : self.gather_information,
             AgentState.EVIDENCE_ANALYSIS : self.analyze_evidence,
@@ -289,6 +512,7 @@ class FakeNewsAgent:
     def process_input(self) -> None:
         """Validate and process the input news item."""
         logging.debug(f"process_input, state : {self.state}")
+        """
         if not self.current_news_item:
             raise ValueError("No news item to process")
         
@@ -300,7 +524,7 @@ class FakeNewsAgent:
             'title': self.current_news_item['title'],
             'content_length': len(self.current_news_item['content']),
             'source': self.current_news_item['source']
-        }
+        }"""
     
     def gather_information(self) -> None:
         """Gather information from both ontology and LLM."""
@@ -354,7 +578,7 @@ class FakeNewsAgent:
         }
         self.learn_from_experience()
 
-    def print_ready(self):
+    def mantain_readyness(self):
         pass
 
     def learn_from_experience(self) -> None:
@@ -518,17 +742,6 @@ class FakeNewsAgent:
     
 
     def identify_improvements(self) -> List[str]:
-        """Identify areas for improvement in the analysis process."""
-        #TODO use self.agent_memory for this par to check where the plane gone wrong
-        # areas of improvement includes the decisions taken by the agent that 
-        # - lead to drop a goal because unachievable
-        # - lead to suspend a goal
-        # - re-generate a new plan
-        # - repeat a state/action if not explicitly requets from user
-        # - type of llm prompt
-        # - type of ontology prompt
-        # - number of intereaction with user
-        #return []
         """
         Identify areas for improvement in the analysis process based on agent memory,
         goals state, and execution history.
@@ -628,11 +841,12 @@ class FakeNewsAgent:
         
         try:
             self.transition_to_state(AgentState.INPUT_PROCESSING)
-            
             # iterate over states and stop at the end of the cycle
             while self.state != AgentState.IDLE:
+                next_state = self.identify_next_state()
+                self.transition_to_state(next_state)
+
                 # get active goals
-                
                 active_goals = self.get_active_goals()
                 
                 # re-initialise goals in case of fail
