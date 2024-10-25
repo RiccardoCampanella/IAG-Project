@@ -13,7 +13,7 @@ class AgentState(Enum):
     INPUT_PROCESSING = 1
     INFORMATION_GATHERING = 2
     EVIDENCE_ANALYSIS = 3
-    REASONING = 4
+    #REASONING = 4
     RECOMMENDATION_FORMULATION = 5
     #OUTPUT_GENERATION = 6
     SELF_EVALUATION = 6
@@ -395,7 +395,7 @@ class FakeNewsAgent:
         final_score = (
             base_score * 0.15 +          # Base path efficiency
             completion_score * 0.20 +     # Goal completion
-            learning_score * 0.25 +       # Learning improvements
+            learning_score * 0.25 +       # Learning improvements (now missing REASONING component)
             efficiency_score * 0.20 +     # Historical efficiency
             confidence_score * 0.20 -     # Confidence in decisions
             penalties                     # Various penalties
@@ -435,10 +435,6 @@ class FakeNewsAgent:
                 if state in {AgentState.INFORMATION_GATHERING, AgentState.EVIDENCE_ANALYSIS}:
                     learning_score += adjustments.get('trust_ontology', 0.5) * 0.3
                     learning_score += adjustments.get('trust_llm', 0.5) * 0.3
-                
-                # Reward paths that align with successful learning patterns
-                if state == AgentState.REASONING:
-                    learning_score += adjustments.get('trust_llm_vedant', 0.5) * 0.4
             
             # Score based on performance metrics improvement
             if 'performance_metrics' in learning_history:
@@ -547,7 +543,7 @@ class FakeNewsAgent:
         # Penalty for skipping critical states
         critical_states = {
             AgentState.EVIDENCE_ANALYSIS,
-            AgentState.REASONING,
+            #AgentState.REASONING,
             AgentState.SELF_EVALUATION
         }
         if any(s not in path for s in critical_states):
@@ -723,7 +719,7 @@ class FakeNewsAgent:
             AgentState.INPUT_PROCESSING : self.process_input,
             AgentState.INFORMATION_GATHERING : self.gather_information,
             AgentState.EVIDENCE_ANALYSIS : self.analyze_evidence,
-            AgentState.REASONING : self.perform_goal_reasoning,
+            #AgentState.REASONING : self.knowledge_reasoning_match,
             AgentState.RECOMMENDATION_FORMULATION : self.formulate_recommendation,
             AgentState.SELF_EVALUATION : self.perform_self_evaluation
         }
@@ -749,7 +745,7 @@ class FakeNewsAgent:
     def await_user(self) -> None:
         if self.current_news_item != None: return 
         statement = input("Enter news article...")
-        self.current_news_item = "Running is good for your health"
+        #self.current_news_item = "Running is good for your health"
         return
 
     def process_input(self) -> None:
@@ -806,13 +802,6 @@ class FakeNewsAgent:
             "isTrue" : self.confidence > 0.5, # if the confidence in the statement is larger than 0.5. Then the statement is true
             "confidence_percentage" : abs((self.confidence - 0.5)* 2 * 100) # Turn confidence in percentage
         }
-       
-    def perform_goal_reasoning(self) -> None:
-        """Perform reasoning based on analyzed evidence."""
-        logging.debug(f"perform_reasoning, state : {self.state}")
-        if 'evidence_analysis' not in self.analysis_results:
-            raise ValueError("No analyzed evidence for reasoning")
-        self.analysis_results['reasoning_results'] = self.reason_about_evidence()
         
     def formulate_recommendation(self) -> None:
         """Formulate a recommendation based on reasoning."""
