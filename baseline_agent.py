@@ -55,7 +55,7 @@ class Goal:
     
 
 logging.basicConfig(
-    level=logging.DEBUG,  # Set the logging level to DEBUG to capture all types of log messages
+    level=logging.INFO,  # Set the logging level to DEBUG to capture all types of log messages
     format='%(asctime)s - %(levelname)s - %(message)s',  # Specify the log message format
     handlers=[logging.StreamHandler()]  # Output log messages to the console
 )
@@ -534,19 +534,16 @@ class FakeNewsAgent:
     def analyze_evidence(self) -> None:
         """Analyze gathered evidence."""
         logging.debug(f"current_function: analyze_evidence, state : {self.state}")
-
         if 'gathered_info' not in self.analysis_results:
             raise ValueError("No gathered information to analyze")
-
+        
         self.confidence = 0.5 # Set base confidence. 0.5 is neutral
         if self.analysis_results["gathered_info"]["llm_analysis"]["llm_args"] != []: # if there are LLM results
             llm_selftrust = self.analysis_results["gathered_info"]["llm_analysis"]["llm_selftrust"]
             trust_llm = self.hyperparameters["trust_llm"] * abs((llm_selftrust - 0.5)* 2) # Multiply trust in LLm by trust the llm has in itself
             self.calculate_confidence_score(trust_llm, llm_selftrust < 0.5) # Calculate confidence
-
         if self.analysis_results["gathered_info"]["ontology_data"] != None: # If there are ontology results
             self.calculate_confidence_score(self.hyperparameters["trust_ontology"], True)
-
         self.analysis_results['reasoning_results'] = {
             "isTrue" : self.confidence > 0.5, # if the confidence in the statement is larger than 0.5. Then the statement is true
             "confidence_percentage" : abs((self.confidence - 0.5)* 2 * 100) # Turn confidence in percentage
@@ -558,7 +555,7 @@ class FakeNewsAgent:
         if 'evidence_analysis' not in self.analysis_results:
             raise ValueError("No analyzed evidence for reasoning")
         self.analysis_results['reasoning_results'] = self.reason_about_evidence()
-
+        
     def formulate_recommendation(self) -> None:
         """Formulate a recommendation based on reasoning."""
         logging.debug(f"formulate_recomendation, state: {self.state}, goals active ")
@@ -567,9 +564,9 @@ class FakeNewsAgent:
             raise ValueError("No reasoning results for recommendation")
         print(self.analysis_results['reasoning_results'])
 
-        self.analysis_results['recommendation'] = (f"The statement {self.current_news_item} is determined to be "+ \
+        self.analysis_results['recommendation'] = f"The statement {self.current_news_item} is determined to be "+ \
             f"{self.analysis_results['reasoning_results']['isTrue']} with a confidence margin of " + \
-            f"{self.analysis_results['reasoning_results']['confidence_percentage']}%")
+            f"{self.analysis_results['reasoning_results']['confidence_percentage']}%"
         
         self.analysis_results['final_output'] = {
             'verification_result': self.analysis_results['recommendation'],
