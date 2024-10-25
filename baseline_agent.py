@@ -889,7 +889,7 @@ class FakeNewsAgent:
                         self.procedural_state_transition()
                 
                 # pursue goal
-                self.pursue_active_goals()
+                self.adopt_active_goals()
             
             return self.analysis_results
             
