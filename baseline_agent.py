@@ -13,10 +13,10 @@ class AgentState(Enum):
     INPUT_PROCESSING = 1
     INFORMATION_GATHERING = 2
     EVIDENCE_ANALYSIS = 3
-    #REASONING = 4
-    RECOMMENDATION_FORMULATION = 5
+    RECOMMENDATION_FORMULATION = 4
+    SELF_EVALUATION = 5
+    REASONING = 6
     #OUTPUT_GENERATION = 6
-    SELF_EVALUATION = 6
     LEARNING = 7
     ERROR = 8
 
@@ -543,7 +543,7 @@ class FakeNewsAgent:
         # Penalty for skipping critical states
         critical_states = {
             AgentState.EVIDENCE_ANALYSIS,
-            #AgentState.REASONING,
+            AgentState.RECOMMENDATION_FORMULATION,
             AgentState.SELF_EVALUATION
         }
         if any(s not in path for s in critical_states):
@@ -771,8 +771,9 @@ class FakeNewsAgent:
         logging.debug(f"gather_information, state : {self.state}")
         print("Gathering information")
         if self.ontology_service:
-            ontology_results = self.ontology_service.query(self.current_news_item)
-
+            query_arguments, target, forall = self.ontology_service.nlp_to_protege_query(self.current_news_item)
+            print(F"RESULT ONTOLOGY : {query_arguments, target, forall}") 
+            ontology_results = self.ontology_service.query(query_arguments, target, forall)
         try:
             llm_results, trust = self.llm_service.query(self.current_news_item)
         except Exception as e :print(e)
@@ -1122,5 +1123,5 @@ class FakeNewsAgent:
             raise
 
 if __name__ == '__main__':
-    FNA = FakeNewsAgent(OntologyService(client='query_protege'), LLMService())
+    FNA = FakeNewsAgent(OntologyService(), LLMService())
     recommendation = FNA.analyze_news_item()

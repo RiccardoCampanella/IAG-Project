@@ -268,7 +268,8 @@ class FakeNewsTrainer:
         Process a single news item through the agent.
         """
         self.agent.current_news_item = item['text']
-        self.agent.process_news_item()
+        self.agent.gather_information()
+        self.agent.analyze_evidence()
         
         # Extract results
         results = self.agent.analysis_results.get('reasoning_results', {})
