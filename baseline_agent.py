@@ -1,4 +1,5 @@
 import numpy as np
+import os
 from enum import Enum
 from typing import Dict, List, Set, Optional, Any, Iterator, FrozenSet
 from dataclasses import dataclass
@@ -7,6 +8,7 @@ from llm_service import LLMService
 import logging
 from arguments_examples import argument_examples
 from collections import deque
+from datetime import datetime
 
 class AgentState(Enum):
     IDLE = 0
@@ -62,14 +64,6 @@ class Goal:
         yield self.is_achievable
         yield self.is_suspended
         yield self.is_replanned
-    
-# Initialising the Logger to kep track of the user Goal, Plans, States, Actions and eventul Errors
-logging.basicConfig(
-    level=logging.INFO,  # Set the logging level to DEBUG to capture all types of log messages
-    format='%(asctime)s - %(levelname)s - %(message)s',  # Specify the log message format
-    handlers=[logging.StreamHandler()]  # Output log messages to the console
-)
-logger = logging.getLogger(__name__)
 
 class FakeNewsAgent:
 
@@ -83,6 +77,8 @@ class FakeNewsAgent:
         self.hyperparameters = self.initialise_hyperparameters()
         self.agent_memory = self.subgoals.copy()
         self.hyperparameters = self.initialise_hyperparameters()
+        self.logger = self.setup_logger()
+        self.logger.info("FakeNewsTrainer initialized successfully") 
 
     def initialise_goals(self):
         """Initialize the main goal and subgoals with proper plans."""
@@ -185,14 +181,14 @@ class FakeNewsAgent:
     # transitioning once the prior state conditions are satisfied 
     def transition_to_state(self, new_state: AgentState) -> None:
         """Transition to a new state and handle related goal updates."""
-        logging.info(f"Transitioning from {self.state} to {new_state}")
+        self.logger.info(f"Transitioning from {self.state} to {new_state}")
         self.agent_memory.add(frozenset(self.subgoals.copy())) # update agent memory
         self.deactivate_goals() #TODO check assumption 
         self.state = new_state
         self.activate_relevant_goals()
         self.agent_memory.add(frozenset(self.subgoals.copy()))
         if not self.get_active_goals():
-            logging.info(f"Failed Transitioning from {self.state} to {new_state}")
+            self.logger.info(f"Failed Transitioning from {self.state} to {new_state}")
     
     # goals with is_active set to true
     def get_active_goals(self) -> List[Goal]:
@@ -216,14 +212,14 @@ class FakeNewsAgent:
                  goal.is_achievable = False
                  goal.is_dropped = True
                  goal.plan.steps = [] # Dastani paper's rule 
-        logging.info(f"\n Deactivating prior goals: {[goal.description for goal in self.subgoals]}, \n achieved: {[goal.description for goal in self.subgoals if goal.is_achieved]}, \n suspended: {[goal.description for goal in self.subgoals if goal.is_suspended]}")
+        self.logger.info(f"\n Deactivating prior goals: {[goal.description for goal in self.subgoals]}, \n achieved: {[goal.description for goal in self.subgoals if goal.is_achieved]}, \n suspended: {[goal.description for goal in self.subgoals if goal.is_suspended]}")
 
 
     # goals excluded from active goals
     def get_suspended_goals(self) -> List[Goal]:
         """Return currently suspended goals."""
         suspended_goals =  [goal for goal in self.subgoals if not goal.is_active and goal.is_suspended]
-        logging.info(f"get_suspended_goals: {[goal.description for goal in suspended_goals]}")
+        self.logger.info(f"get_suspended_goals: {[goal.description for goal in suspended_goals]}")
         return suspended_goals
 
     # A goal is activated when the current state is included in the goals states 
@@ -233,20 +229,20 @@ class FakeNewsAgent:
         for goal in self.subgoals:
             if goal.conditions:
                 if not goal.is_suspended and not goal.plan:
-                    logging.info(f"Failed to activate_relevant_goals")
+                    self.logger.info(f"Failed to activate_relevant_goals")
                 else:
                     for prior_state in goal.conditions.keys():
                         if current_state_id - 1 == prior_state.value:
                             goal.is_active = True
             else:
                 goal.is_active = True # can be activated with no conditions
-        logging.info(f"activate_relevant_goals: {[goal.description for goal in self.get_active_goals()]}")
+        self.logger.info(f"activate_relevant_goals: {[goal.description for goal in self.get_active_goals()]}")
        
     # execute active goal(s)'s plan  
     def adopt_active_goals(self) -> None:
         """Adopt plans for active goals."""
         active_goals = self.get_active_goals()
-        logging.info(f"Adopt_active_goals: {[goal.description for goal in active_goals]}")
+        self.logger.info(f"Adopt_active_goals: {[goal.description for goal in active_goals]}")
         for goal in active_goals:
             if goal.plan.steps:
                 self.execute_plan(goal.plan)
@@ -257,7 +253,7 @@ class FakeNewsAgent:
     # the next state is determined by the current goal(s)'s plan
     def execute_plan(self, plan: Plan) -> None:
         """Execute the steps in a plan."""
-        logging.info(f"execute_plan, {self.state}")
+        self.logger.info(f"execute_plan, {self.state}")
         while (next_state := plan.next_step()) is not None:
             try:
                 self.execute_state_action(next_state)
@@ -281,7 +277,7 @@ class FakeNewsAgent:
         
         if state in action_map.keys():
             action_map[state]()
-            logging.info(f"execute_state_action, state: {self.state}, action: {action_map[state]}, goals active: {[goal.description for goal in self.get_active_goals()]}")
+            self.logger.info(f"execute_state_action, state: {self.state}, action: {action_map[state]}, goals active: {[goal.description for goal in self.get_active_goals()]}")
         else:
             raise ValueError(f"No action defined for state {state}")
     
@@ -308,7 +304,7 @@ class FakeNewsAgent:
         Returns:
             AgentState: The next state the agent should transition to
         """
-        logging.debug(f"Identifying next state from current state: {self.state}")
+        self.logger.debug(f"Identifying next state from current state: {self.state}")
         
         # Build state transition graph from goals and conditions
         state_graph = self._build_state_graph()
@@ -317,7 +313,7 @@ class FakeNewsAgent:
         candidate_states = self._get_candidate_states()
         
         if not candidate_states:
-            logging.warning("No candidate states found, using procedural fallback")
+            self.logger.warning("No candidate states found, using procedural fallback")
             return self._get_procedural_next_state()
         
         # Find paths to final state for each candidate
@@ -336,7 +332,7 @@ class FakeNewsAgent:
         # Select optimal next state based on path analysis
         next_state = self._select_optimal_state(paths_to_final)
         
-        logging.info(f"Selected next state: {next_state}")
+        self.logger.info(f"Selected next state: {next_state}")
         return next_state
 
     def _build_state_graph(self) -> Dict[AgentState, Set[AgentState]]:
@@ -506,7 +502,7 @@ class FakeNewsAgent:
             penalties                     # Various penalties
         )
         
-        logging.debug(f"""Path score components for state {state}:
+        self.logger.debug(f"""Path score components for state {state}:
             Base: {base_score:.3f}
             Completion: {completion_score:.3f}
             Learning: {learning_score:.3f}
@@ -738,11 +734,11 @@ class FakeNewsAgent:
         """Advance to the next logical state in the processing pipeline."""
         state_order = [state for state in AgentState]
         current_index = state_order.index(self.state)
-        logging.info(f"following procedural_state_transition: State {current_index} to {current_index+1}")
+        self.logger.info(f"following procedural_state_transition: State {current_index} to {current_index+1}")
         if current_index < len(state_order) - 1:
             self.transition_to_state(state_order[current_index + 1]) # assume the plan list is ordered in sequential logical order
         else:
-            logging.info(f"Completed procedural_state_transition: State {current_index}")
+            self.logger.info(f"Completed procedural_state_transition: State {current_index}")
 
 
     
@@ -753,12 +749,11 @@ class FakeNewsAgent:
     def await_user(self) -> None:
         if self.current_news_item != None: return 
         statement = input("Enter news article...")
-        #self.current_news_item = "Running is good for your health"
         return
 
     def process_input(self) -> None:
         """Validate and process the input news item."""
-        logging.debug(f"process_input, state : {self.state}")
+        self.logger.debug(f"process_input, state : {self.state}")
         
         if not self.current_news_item:
             raise ValueError("No news item to process")
@@ -776,7 +771,7 @@ class FakeNewsAgent:
 
     def gather_information(self) -> None:
         """Gather information from both ontology and LLM."""
-        logging.debug(f"gather_information, state : {self.state}")
+        self.logger.debug(f"gather_information, state : {self.state}")
         print("Gathering information")
 
         if self.ontology_service:
@@ -803,7 +798,7 @@ class FakeNewsAgent:
 
     def analyze_evidence(self) -> None:
         """Analyze gathered evidence."""
-        logging.debug(f"current_function: analyze_evidence, state : {self.state}")
+        self.logger.debug(f"current_function: analyze_evidence, state : {self.state}")
         if 'gathered_info' not in self.analysis_results:
             raise ValueError("No gathered information to analyze")
         
@@ -823,7 +818,7 @@ class FakeNewsAgent:
         
     def formulate_recommendation(self) -> None:
         """Formulate a recommendation based on reasoning."""
-        logging.debug(f"formulate_recomendation, state: {self.state}, goals active ")
+        self.logger.debug(f"formulate_recomendation, state: {self.state}, goals active ")
         if 'reasoning_results' not in self.analysis_results:
 
             raise ValueError("No reasoning results for recommendation")
@@ -842,7 +837,7 @@ class FakeNewsAgent:
         
     def perform_self_evaluation(self) -> None:
         """Perform self-evaluation of the analysis process."""
-        logging.debug(f"perfrom_self_evaluation, state : {self.state}, goals active ")
+        self.logger.debug(f"perfrom_self_evaluation, state : {self.state}, goals active ")
         self.analysis_results['evaluation'] = {
             'process_complete': bool(self.analysis_results.get('final_output')),
             'areas_for_improvement': self.identify_improvements()
@@ -858,10 +853,10 @@ class FakeNewsAgent:
         Called after perform_self_evaluation to tune the agent's behavior.
         """
         if not self.analysis_results.get('evaluation'):
-            logging.warning("No evaluation results available for learning")
+            self.logger.warning("No evaluation results available for learning")
             return
 
-        logging.info("Starting learning process to adjust hyperparameters")
+        self.logger.info("Starting learning process to adjust hyperparameters")
         
         # Extract evaluation metrics
         evaluation = self.analysis_results['evaluation']
@@ -899,7 +894,7 @@ class FakeNewsAgent:
             new_value = max(0.1, min(0.9, new_value))
             self.hyperparameters[param] = new_value
             
-            logging.info(f"Adjusted {param}: {current_value:.3f} -> {new_value:.3f}")
+            self.logger.info(f"Adjusted {param}: {current_value:.3f} -> {new_value:.3f}")
 
         # Store learning results for future reference
         self.analysis_results['learning'] = {
@@ -1103,7 +1098,42 @@ class FakeNewsAgent:
         ]
         
         return sum(positive_factors) - sum(negative_factors)
-
+    
+    def setup_logger(self):
+        """
+        Configure logging to write to a file with date-based naming.
+        Suppresses terminal output while maintaining detailed logging in files.
+        """
+        # Create logs directory if it doesn't exist
+        log_dir = 'logs'
+        os.makedirs(log_dir, exist_ok=True)
+        
+        # Create a date-based log filename
+        current_date = datetime.now().strftime('%Y-%m-%d')
+        log_filename = os.path.join(log_dir, f'baseline_agent_{current_date}.log')
+        
+        # Create a logger instance
+        logger = logging.getLogger('FakeNewsTrainer')
+        logger.setLevel(logging.INFO)
+        
+        # Create file handler
+        file_handler = logging.FileHandler(log_filename, mode='a', encoding='utf-8')
+        file_handler.setLevel(logging.INFO)
+        
+        # Create formatter
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        file_handler.setFormatter(formatter)
+        
+        # Clear any existing handlers
+        logger.handlers = []
+        
+        # Add the file handler to the logger
+        logger.addHandler(file_handler)
+        
+        # Prevent propagation to root logger
+        logger.propagate = False
+        
+        return logger
 
 
 
@@ -1141,7 +1171,7 @@ class FakeNewsAgent:
             return self.analysis_results
             
         except Exception as e:
-            logging.error(f"Error analyzing news item: {str(e)}")
+            self.logger.error(f"Error analyzing news item: {str(e)}")
             self.transition_to_state(AgentState.SELF_EVALUATION)
             raise
 

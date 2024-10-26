@@ -1,4 +1,4 @@
-import logging
+import self.logger
 import os
 from typing import List, Dict, Tuple
 import json
@@ -14,6 +14,7 @@ import zipfile
 from groq import Groq
 import logging
 import yaml
+from datetime import datetime
 
 with open("config.yaml", "r") as file:
     config = yaml.safe_load(file)
@@ -31,6 +32,7 @@ class FakeNewsTrainer:
         self.test_data = test_data
         self.training_results = []
         self.agent = FakeNewsAgent(OntologyService(), LLMService())
+        self.logger = self.setup_logger()
 
         # Initialize Groq client
         self.client = Groq(
@@ -46,12 +48,8 @@ class FakeNewsTrainer:
         }
         self.config = config if config else default_config
         self.model = self.config['model_specs']['model_type']
+
         
-        # Setup logging
-        logging.basicConfig(
-            level=logging.INFO,
-            format='%(asctime)s - %(levelname)s - %(message)s'
-        )
 
     @staticmethod
     def load_liar_dataset(data_dir: str = "datasets/liar") -> Tuple[List[Dict], List[Dict]]:
@@ -204,10 +202,10 @@ class FakeNewsTrainer:
         """
         Train the agent for specified number of epochs.
         """
-        logging.info(f"Starting training for {epochs} epochs")
+        self.logger.info(f"Starting training for {epochs} epochs")
         
         for epoch in range(epochs):
-            logging.info(f"Epoch {epoch + 1}/{epochs}")
+            self.logger.info(f"Epoch {epoch + 1}/{epochs}")
             epoch_metrics = {
                 'epoch': epoch + 1,
                 'accuracy': [],
@@ -231,14 +229,14 @@ class FakeNewsTrainer:
             epoch_metrics['avg_confidence'] = sum(epoch_metrics['confidence']) / len(epoch_metrics['confidence'])
             
             self.training_results.append(epoch_metrics)
-            logging.info(f"Epoch {epoch + 1} - Accuracy: {epoch_metrics['avg_accuracy']:.3f}, "
+            self.logger.info(f"Epoch {epoch + 1} - Accuracy: {epoch_metrics['avg_accuracy']:.3f}, "
                         f"Confidence: {epoch_metrics['avg_confidence']:.3f}")
 
     def evaluate(self) -> Dict:
         """
         Evaluate the trained agent on test data.
         """
-        logging.info("Starting evaluation on test set")
+        self.logger.info("Starting evaluation on test set")
         
         test_metrics = {
             'accuracy': [],
@@ -269,14 +267,25 @@ class FakeNewsTrainer:
                 test_metrics['true_negatives'] += 1
         
         # Calculate final metrics
-        test_metrics['final_accuracy'] = sum(test_metrics['accuracy']) / len(test_metrics['accuracy'])
-        test_metrics['avg_confidence'] = sum(test_metrics['confidence']) / len(test_metrics['confidence'])
-        test_metrics['precision'] = (test_metrics['true_positives'] / 
-            (test_metrics['true_positives'] + test_metrics['false_positives']))
-        test_metrics['recall'] = (test_metrics['true_positives'] / 
-            (test_metrics['true_positives'] + test_metrics['false_negatives']))
+        # Calculate final_accuracy, handling division by zero
+        test_metrics['final_accuracy'] = (sum(test_metrics['accuracy']) / len(test_metrics['accuracy'])
+                                        if len(test_metrics['accuracy']) > 0 else 0)
+
+        # Calculate avg_confidence, handling division by zero
+        test_metrics['avg_confidence'] = (sum(test_metrics['confidence']) / len(test_metrics['confidence'])
+                                        if len(test_metrics['confidence']) > 0 else 0)
+
+        # Calculate precision, handling division by zero
+        precision_denominator = test_metrics['true_positives'] + test_metrics['false_positives']
+        test_metrics['precision'] = (test_metrics['true_positives'] / precision_denominator
+                                    if precision_denominator > 0 else 0)
+
+        # Calculate recall, handling division by zero
+        recall_denominator = test_metrics['true_positives'] + test_metrics['false_negatives']
+        test_metrics['recall'] = (test_metrics['true_positives'] / recall_denominator
+                                if recall_denominator > 0 else 0)
         
-        logging.info(f"Test Results - Accuracy: {test_metrics['final_accuracy']:.3f}, "
+        self.logger.info(f"Test Results - Accuracy: {test_metrics['final_accuracy']:.3f}, "
                     f"Precision: {test_metrics['precision']:.3f}, "
                     f"Recall: {test_metrics['recall']:.3f}")
         
@@ -322,11 +331,11 @@ class FakeNewsTrainer:
             # Remove any common prefixes that might have been generated
             headline = headline.replace("Headline:", "").strip()
             
-            logging.debug(f"Generated headline: {headline}")
+            self.logger.debug(f"Generated headline: {headline}")
             return headline
             
         except Exception as e:
-            logging.error(f"Error generating headline: {str(e)}")
+            self.logger.error(f"Error generating headline: {str(e)}")
             # Return a truncated version of the original text as fallback
             return text[:100] + "..." if len(text) > 100 else text
 
@@ -378,7 +387,7 @@ class FakeNewsTrainer:
         
         with open(filename, 'w') as f:
             json.dump(results, f, indent=4)
-        logging.info(f"Results saved to {filename}")
+        self.logger.info(f"Results saved to {filename}")
 
 
 
@@ -480,6 +489,42 @@ class FakeNewsTrainer:
         for dataset_name, dataset_info in datasets.items():
                 status = "Processed successfully" if dataset_info['available'] else "Not available"
                 print(f"{dataset_name}: {status}")
+
+    def setup_logger(self):
+        """
+        Configure logging to write to a file with date-based naming.
+        Suppresses terminal output while maintaining detailed logging in files.
+        """
+        # Create logs directory if it doesn't exist
+        log_dir = 'logs'
+        os.makedirs(log_dir, exist_ok=True)
+        
+        # Create a date-based log filename
+        current_date = datetime.now().strftime('%Y-%m-%d')
+        log_filename = os.path.join(log_dir, f'baseline_trainer_{current_date}.log')
+        
+        # Create a logger instance
+        logger = logging.getLogger('FakeNewsTrainer')
+        logger.setLevel(logging.INFO)
+        
+        # Create file handler
+        file_handler = logging.FileHandler(log_filename, mode='a', encoding='utf-8')
+        file_handler.setLevel(logging.INFO)
+        
+        # Create formatter
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        file_handler.setFormatter(formatter)
+        
+        # Clear any existing handlers
+        logger.handlers = []
+        
+        # Add the file handler to the logger
+        logger.addHandler(file_handler)
+        
+        # Prevent propagation to root logger
+        logger.propagate = False
+        
+        return logger
 
 if __name__ == "__main__":
         fake_news_trainer = FakeNewsTrainer()

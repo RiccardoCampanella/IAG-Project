@@ -8,17 +8,10 @@ import re
 from typing import List, Tuple, Optional, Dict, Any
 import requests
 import logging
+from datetime import datetime
 
 with open("config.yaml", "r") as file:
     config = yaml.safe_load(file)
-
-# Initialising the Logger to kep track of the user Goal, Plans, States, Actions and eventul Errors
-logging.basicConfig(
-    level=logging.DEBUG,  # Set the logging level to DEBUG to capture all types of log messages
-    format='%(asctime)s - %(levelname)s - %(message)s',  # Specify the log message format
-    handlers=[logging.StreamHandler()]  # Output log messages to the console
-)
-logger = logging.getLogger(__name__)
 
 class OntologyService:
     """Service for handling all LLM-related operations."""
@@ -27,6 +20,7 @@ class OntologyService:
         #os.environ["GROQ_API_KEY"] = config['keys']['llm_api_key']
         owlready2.JAVA_EXE = config['paths']['protege_path']
         self.path = config['paths']['ontology_local_path']
+        self.logger = self.setup_logger()
         self.ontology = get_ontology(self.path).load() # Load the ontology
         
         try:
@@ -112,12 +106,12 @@ class OntologyService:
                     class_instances = None
 
                     if some_class is None:
-                        logging.error(f"Class not found in ontology: {argument}")
+                        self.logger.error(f"Class not found in ontology: {argument}")
                     else:
                         class_instances = some_class.instances()
 
                     if class_instances is None:
-                        logging.error(f"No instances found for class: {argument}")
+                        self.logger.error(f"No instances found for class: {argument}")
                     else:
                         instances_list.append([str(x) for x in class_instances])
                 
@@ -125,7 +119,7 @@ class OntologyService:
                     property_name, property_value = argument
                     sublist = self.searchproperties(property_name, property_value)
                     if not sublist:  # If empty list or None
-                        logging.error(f"No instances found for property {property_name} with value {property_value}")
+                        self.logger.error(f"No instances found for property {property_name} with value {property_value}")
                     instances_list.append(sublist)
             
             # If no valid instances were found, return appropriate result
@@ -148,17 +142,17 @@ class OntologyService:
                 if forall_type == "class":
                     forall_class = self.ontology.search_one(iri="*#" + forall_arg)
                     if forall_class is None:
-                        logging.error(f"Universal quantifier class not found: {forall_arg}")
+                        self.logger.error(f"Universal quantifier class not found: {forall_arg}")
                     forall_instances = forall_class.instances()
                     if forall_instances is None:
-                        logging.error(f"No instances found for universal quantifier class: {forall_arg}")
+                        self.logger.error(f"No instances found for universal quantifier class: {forall_arg}")
                     return all(i in forall_instances for i in intersection)
                 
                 elif forall_type == "objectproperty":
                     property_name, property_value = forall_arg
                     object_list = self.searchproperties(property_name, property_value)
                     if object_list is None:
-                        logging.error(f"No instances found for universal quantifier property {property_name} with value {property_value}")
+                        self.logger.error(f"No instances found for universal quantifier property {property_name} with value {property_value}")
                     return all(i in object_list for i in intersection)
             
             # If no target or forall, return the intersection
@@ -475,3 +469,39 @@ class OntologyService:
                         objectlist.append(instance)
         
         return objectlist
+
+    def setup_logger(self):
+        """
+        Configure logging to write to a file with date-based naming.
+        Suppresses terminal output while maintaining detailed logging in files.
+        """
+        # Create logs directory if it doesn't exist
+        log_dir = 'logs'
+        os.makedirs(log_dir, exist_ok=True)
+        
+        # Create a date-based log filename
+        current_date = datetime.now().strftime('%Y-%m-%d')
+        log_filename = os.path.join(log_dir, f'ontology_service_{current_date}.log')
+        
+        # Create a logger instance
+        logger = logging.getLogger('FakeNewsTrainer')
+        logger.setLevel(logging.INFO)
+        
+        # Create file handler
+        file_handler = logging.FileHandler(log_filename, mode='a', encoding='utf-8')
+        file_handler.setLevel(logging.INFO)
+        
+        # Create formatter
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        file_handler.setFormatter(formatter)
+        
+        # Clear any existing handlers
+        logger.handlers = []
+        
+        # Add the file handler to the logger
+        logger.addHandler(file_handler)
+        
+        # Prevent propagation to root logger
+        logger.propagate = False
+        
+        return logger

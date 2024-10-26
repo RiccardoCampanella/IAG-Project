@@ -9,6 +9,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from scipy.sparse.csgraph import connected_components
+from datetime import datetime
 
 with open("config.yaml", "r") as file:
     config = yaml.safe_load(file)
