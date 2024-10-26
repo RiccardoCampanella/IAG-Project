@@ -1,6 +1,6 @@
 import numpy as np
 from enum import Enum
-from typing import Dict, List, Set, Optional
+from typing import Dict, List, Set, Optional, Any, Iterator, FrozenSet
 from dataclasses import dataclass
 from ontology_service import OntologyService
 from llm_service import LLMService
@@ -13,7 +13,7 @@ class AgentState(Enum):
     INPUT_PROCESSING = 1
     INFORMATION_GATHERING = 2
     EVIDENCE_ANALYSIS = 3
-    REASONING = 4
+    #REASONING = 4
     RECOMMENDATION_FORMULATION = 5
     #OUTPUT_GENERATION = 6
     SELF_EVALUATION = 6
@@ -52,6 +52,17 @@ class Goal:
     
     def __hash__(self):
         return hash(self.description)
+    
+    def __iter__(self) -> Iterator[Any]:
+        yield self.description
+        yield from self.conditions.items()  # Yields (key, value) pairs from conditions
+        yield self.plan 
+        yield self.is_active
+        yield self.is_dropped
+        yield self.is_achieved
+        yield self.is_achievable
+        yield self.is_suspended
+        yield self.is_replanned
     
 
 logging.basicConfig(
@@ -118,6 +129,16 @@ class FakeNewsAgent:
                 plan=Plan(steps=[AgentState.RECOMMENDATION_FORMULATION])
             ),
             # Additional subgoals
+            Goal(
+                description="Return to the Initial State",
+                conditions={AgentState.RECOMMENDATION_FORMULATION : AgentState.SELF_EVALUATION},
+                plan=Plan(steps=[AgentState.SELF_EVALUATION])
+            ),
+            Goal(
+                description="Return to the Initial State",
+                conditions={AgentState.SELF_EVALUATION : AgentState.IDLE},
+                plan=Plan(steps=[AgentState.IDLE])
+            ),
             Goal(
                 description="Mantain readiness to process new queries",
                 conditions = {AgentState.IDLE : AgentState.IDLE},
@@ -196,7 +217,7 @@ class FakeNewsAgent:
         
         # Find paths to final state for each candidate
         paths_to_final = {}
-        final_states = {AgentState.RECOMMENDATION_FORMULATION}
+        final_states = {AgentState.IDLE}
         
         for candidate in candidate_states:
             shortest_path = self._find_shortest_path(
@@ -332,35 +353,267 @@ class FakeNewsAgent:
         path: List[AgentState]
     ) -> float:
         """
-        Calculate score for a path based on multiple criteria.
+        Calculate path score incorporating learning metrics, historical performance,
+        and self-improvement indicators.
         
         Args:
             state: Candidate next state
             path: Path from state to final state
         
         Returns:
-            float: Score for the path
+            float: Comprehensive score for the path
         """
-        # Base score inversely proportional to path length
-        score = 1.0 / len(path)
+        # Base path efficiency score (inverse of path length)
+        base_score = 1.0 / len(path)
         
-        # Bonus for completing more goals
+        # Initialize scoring components
+        completion_score = 0.0
+        learning_score = 0.0
+        efficiency_score = 0.0
+        confidence_score = 0.0
+        
+        # Calculate goal completion score
         goals_completed = sum(
             1 for goal in self.subgoals
             if all(s in path for s in goal.plan.steps)
         )
-        score += 0.2 * (goals_completed / len(self.subgoals))
+        completion_score = 0.2 * (goals_completed / len(self.subgoals))
+        
+        # Calculate learning-based improvements score
+        learning_score = self._calculate_learning_score(state, path)
+        
+        # Calculate efficiency score based on historical performance
+        efficiency_score = self._calculate_efficiency_score(state, path)
+        
+        # Calculate confidence score based on past evaluations
+        confidence_score = self._calculate_confidence_score(state, path)
+        
+        # Apply penalties
+        penalties = self._calculate_penalties(state, path)
+        
+        # Combine scores with weighted importance
+        final_score = (
+            base_score * 0.15 +          # Base path efficiency
+            completion_score * 0.20 +     # Goal completion
+            learning_score * 0.25 +       # Learning improvements (now missing REASONING component)
+            efficiency_score * 0.20 +     # Historical efficiency
+            confidence_score * 0.20 -     # Confidence in decisions
+            penalties                     # Various penalties
+        )
+        
+        logging.debug(f"""Path score components for state {state}:
+            Base: {base_score:.3f}
+            Completion: {completion_score:.3f}
+            Learning: {learning_score:.3f}
+            Efficiency: {efficiency_score:.3f}
+            Confidence: {confidence_score:.3f}
+            Penalties: {penalties:.3f}
+            Final: {final_score:.3f}""")
+        
+        return final_score
+
+    def _calculate_learning_score(
+        self,
+        state: AgentState,
+        path: List[AgentState]
+    ) -> float:
+        """
+        Calculate learning-based improvement score from historical performance
+        and hyperparameter adjustments.
+        """
+        learning_score = 0.0
+        
+        # Check if we have learning history in analysis_results
+        if hasattr(self, 'analysis_results') and 'learning' in self.analysis_results:
+            learning_history = self.analysis_results['learning']
+            
+            # Score based on hyperparameter optimization
+            if 'hyperparameter_adjustments' in learning_history:
+                adjustments = learning_history['hyperparameter_adjustments']
+                
+                # Reward paths that utilize highly trusted components
+                if state in {AgentState.INFORMATION_GATHERING, AgentState.EVIDENCE_ANALYSIS}:
+                    learning_score += adjustments.get('trust_ontology', 0.5) * 0.3
+                    learning_score += adjustments.get('trust_llm', 0.5) * 0.3
+            
+            # Score based on performance metrics improvement
+            if 'performance_metrics' in learning_history:
+                metrics = learning_history['performance_metrics']
+                learning_score += metrics.get('achieved_goals_ratio', 0.5) * 0.2
+                learning_score += (1 - metrics.get('dropped_goals_ratio', 0.5)) * 0.2
+        
+        # Consider self-evaluation states in path
+        eval_states = {AgentState.SELF_EVALUATION}
+        if any(s in path for s in eval_states):
+            learning_score *= 1.2  # Bonus for paths including learning opportunities
+        
+        return learning_score
+
+    def _calculate_efficiency_score(
+        self,
+        state: AgentState,
+        path: List[AgentState]
+    ) -> float:
+        """
+        Calculate efficiency score based on historical state transitions
+        and execution patterns.
+        """
+        efficiency_score = 0.0
+        
+        # Analyze agent memory for successful patterns
+        if hasattr(self, 'agent_memory'):
+            memory_states = list(self.agent_memory)
+            if memory_states:
+                # Check if this path matches previously successful patterns
+                successful_patterns = self._identify_successful_patterns(memory_states)
+                path_pattern = tuple(path)
+                if path_pattern in successful_patterns:
+                    efficiency_score += 0.3
+                
+                # Reward paths that avoid historically problematic state sequences
+                problematic_patterns = self._identify_problematic_patterns(memory_states)
+                if not any(pattern in path_pattern for pattern in problematic_patterns):
+                    efficiency_score += 0.2
+        
+        # Consider state transition efficiency
+        transition_efficiency = self._calculate_transition_efficiency(state, path)
+        efficiency_score += transition_efficiency * 0.5
+        
+        return efficiency_score
+
+    def _calculate_confidence_score(
+        self,
+        state: AgentState,
+        path: List[AgentState]
+    ) -> float:
+        """
+        Calculate confidence score based on historical evaluations
+        and success rates.
+        """
+        confidence_score = 0.0
+        
+        # Consider evaluation history if available
+        if hasattr(self, 'analysis_results') and 'evaluation' in self.analysis_results:
+            evaluation = self.analysis_results['evaluation']
+            
+            # Base confidence on historical success
+            if 'confidence_level' in evaluation:
+                confidence_score += evaluation['confidence_level'] * 0.4
+            
+            # Consider process completion rate
+            if 'process_complete' in evaluation:
+                confidence_score += float(evaluation['process_complete']) * 0.3
+            
+            # Analyze improvement areas
+            if 'areas_for_improvement' in evaluation:
+                improvements = evaluation['areas_for_improvement']
+                # Higher confidence if fewer improvements needed
+                confidence_score += (1 - (len(improvements) / 10)) * 0.3
+        
+        return confidence_score
+
+    def _calculate_penalties(
+        self,
+        state: AgentState,
+        path: List[AgentState]
+    ) -> float:
+        """
+        Calculate penalties based on various risk factors and constraints.
+        """
+        penalties = 0.0
         
         # Penalty for suspended goals
-        if any(goal.is_suspended and state in goal.plan.steps 
-            for goal in self.subgoals):
-            score -= 0.1
+        suspended_goals = [
+            goal for goal in self.subgoals
+            if goal.is_suspended and state in goal.plan.steps
+        ]
+        penalties += len(suspended_goals) * 0.1
         
-        # Bonus for following natural progression
-        if state.value == self.state.value + 1:
-            score += 0.1
+        # Penalty for deviating from natural progression
+        if state.value != self.state.value + 1:
+            penalties += 0.1
         
-        return score
+        # Penalty for repeated states in path
+        state_counts = {}
+        for s in path:
+            state_counts[s] = state_counts.get(s, 0) + 1
+            if state_counts[s] > 1:
+                penalties += 0.15
+        
+        # Penalty for skipping critical states
+        critical_states = {
+            AgentState.EVIDENCE_ANALYSIS,
+            #AgentState.REASONING,
+            AgentState.SELF_EVALUATION
+        }
+        if any(s not in path for s in critical_states):
+            penalties += 0.2
+        
+        return penalties
+
+    def _identify_successful_patterns(
+        self,
+        memory_states: List[frozenset[Goal]]
+    ) -> Set[tuple]:
+        """
+        Identify historically successful state transition patterns.
+        """
+        successful_patterns = set()
+        for memory_state in memory_states:
+            achieved_goals = [
+                goal for goal in memory_state
+                if (isinstance(goal, Goal) and goal.is_achieved) and (isinstance(goal, Goal) and not goal.is_dropped)
+            ]
+            for goal in achieved_goals:
+                if goal.plan and goal.plan.steps:
+                    successful_patterns.add(tuple(goal.plan.steps))
+        return successful_patterns
+
+    def _identify_problematic_patterns(
+        self,
+        memory_states: List[frozenset[Goal]]
+    ) -> Set[tuple]:
+        """
+        Identify historically problematic state transition patterns.
+        """
+        problematic_patterns = set()
+        for memory_state in memory_states:
+            problematic_goals = [
+                goal for goal in memory_state
+                if (isinstance(goal, Goal) and goal.is_dropped) or (isinstance(goal, Goal) and goal.is_suspended)
+            ]
+            for goal in problematic_goals:
+                if goal.plan and goal.plan.steps:
+                    problematic_patterns.add(tuple(goal.plan.steps))
+        return problematic_patterns
+
+    def _calculate_transition_efficiency(
+        self,
+        state: AgentState,
+        path: List[AgentState]
+    ) -> float:
+        """
+        Calculate the efficiency of state transitions in the path.
+        """
+        if not path:
+            return 0.0
+        
+        # Calculate transition costs
+        transition_costs = 0
+        for i in range(len(path) - 1):
+            current_state = path[i]
+            next_state = path[i + 1]
+            
+            # Higher cost for non-adjacent state transitions
+            if abs(next_state.value - current_state.value) > 1:
+                transition_costs += 0.2
+            
+            # Higher cost for backwards transitions
+            if next_state.value < current_state.value:
+                transition_costs += 0.3
+        
+        # Convert costs to efficiency score (inverse relationship)
+        return 1.0 / (1.0 + transition_costs)
 
     def _get_procedural_next_state(self) -> AgentState:
         """
@@ -391,7 +644,6 @@ class FakeNewsAgent:
         return [goal for goal in self.subgoals if goal.is_active]
     
     def deactivate_goals(self):
-        logging.info(f"Deactivating prior goals: {[goal.description for goal in self.get_active_goals()]}")
         for goal in self.subgoals:
             goal.is_active = False
             # a goal is dropped the state in its plane list is reached => still managed to carry out task (agent successfull)
@@ -409,7 +661,9 @@ class FakeNewsAgent:
                  goal.is_achievable = False
                  goal.is_dropped = True
                  goal.plan.steps = [] # Dastani paper's rule 
-    
+        logging.info(f"\n Deactivating prior goals: {[goal.description for goal in self.subgoals]}, \n achieved: {[goal.description for goal in self.subgoals if goal.is_achieved]}, \n suspended: {[goal.description for goal in self.subgoals if goal.is_suspended]}")
+
+
     # goals excluded from active goals
     def get_suspended_goals(self) -> List[Goal]:
         """Return currently suspended goals."""
@@ -465,7 +719,7 @@ class FakeNewsAgent:
             AgentState.INPUT_PROCESSING : self.process_input,
             AgentState.INFORMATION_GATHERING : self.gather_information,
             AgentState.EVIDENCE_ANALYSIS : self.analyze_evidence,
-            AgentState.REASONING : self.perform_goal_reasoning,
+            #AgentState.REASONING : self.knowledge_reasoning_match,
             AgentState.RECOMMENDATION_FORMULATION : self.formulate_recommendation,
             AgentState.SELF_EVALUATION : self.perform_self_evaluation
         }
@@ -491,7 +745,7 @@ class FakeNewsAgent:
     def await_user(self) -> None:
         if self.current_news_item != None: return 
         statement = input("Enter news article...")
-        self.current_news_item = statement
+        #self.current_news_item = "Running is good for your health"
         return
 
     def process_input(self) -> None:
@@ -548,13 +802,6 @@ class FakeNewsAgent:
             "isTrue" : self.confidence > 0.5, # if the confidence in the statement is larger than 0.5. Then the statement is true
             "confidence_percentage" : abs((self.confidence - 0.5)* 2 * 100) # Turn confidence in percentage
         }
-       
-    def perform_goal_reasoning(self) -> None:
-        """Perform reasoning based on analyzed evidence."""
-        logging.debug(f"perform_reasoning, state : {self.state}")
-        if 'evidence_analysis' not in self.analysis_results:
-            raise ValueError("No analyzed evidence for reasoning")
-        self.analysis_results['reasoning_results'] = self.reason_about_evidence()
         
     def formulate_recommendation(self) -> None:
         """Formulate a recommendation based on reasoning."""
@@ -622,10 +869,6 @@ class FakeNewsAgent:
                 achieved_goals_ratio,
                 confidence_level,
                 llm_ontology_agreement
-            ),
-            'trust_llm_vedant': self._calculate_vedant_adjustment(
-                dropped_goals_ratio,
-                confidence_level
             )
         }
         
@@ -721,24 +964,6 @@ class FakeNewsAgent:
         
         return sum(positive_factors) - sum(negative_factors)
 
-    def _calculate_vedant_adjustment(
-        self,
-        dropped_ratio: float,
-        confidence: float
-    ) -> float:
-        """Calculate adjustment for Vedant-specific trust based on performance metrics."""
-        # Positive factors increase trust
-        positive_factors = [
-            confidence * 0.4,
-            (1 - dropped_ratio) * 0.3  # Reward low drop rate
-        ]
-        
-        # Negative factors decrease trust
-        negative_factors = [
-            dropped_ratio * 0.3  # Penalize dropped goals
-        ]
-        
-        return sum(positive_factors) - sum(negative_factors)
 
     ### Helper methods
 
@@ -797,7 +1022,7 @@ class FakeNewsAgent:
         # Analyze transitions in agent memory for repetitive states
         if len(self.agent_memory) > 1:
             state_sequence = [goal for memory_state in self.agent_memory 
-                            for goal in memory_state if goal.is_active]
+                            for goal in memory_state if isinstance(goal, Goal) and goal.is_active]
             state_counts = {}
             for goal in state_sequence:
                 if goal.plan.steps:
@@ -861,9 +1086,8 @@ class FakeNewsAgent:
 
     ### Agent Test method
 
-    def analyze_news_item(self, news_item: str) -> dict:
+    def analyze_news_item(self) -> dict:
         """Main method to analyze a news item."""
-        self.current_news_item = news_item
         self.analysis_results = {}
         
         try:
@@ -879,11 +1103,13 @@ class FakeNewsAgent:
                 # re-initialise goals in case of fail
                 if not active_goals:
                     # end of the cycle 
-                    if self.state == AgentState.RECOMMENDATION_FORMULATION:
+                    if self.state == AgentState.SELF_EVALUATION:
                         self.transition_to_state(AgentState.IDLE)
+                    """
                     # automated plan rules failed, procedural state generation
                     else:
                         self.procedural_state_transition()
+                    """
                 
                 # pursue goal
                 self.adopt_active_goals()
@@ -896,5 +1122,5 @@ class FakeNewsAgent:
             raise
 
 if __name__ == '__main__':
-    FNA = FakeNewsAgent(OntologyService, LLMService)
-    FNA.analyze_news_item('Running is good for your health')
+    FNA = FakeNewsAgent(OntologyService(client='query_protege'), LLMService())
+    recommendation = FNA.analyze_news_item()

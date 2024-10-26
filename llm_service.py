@@ -13,6 +13,9 @@ from scipy.sparse.csgraph import connected_components
 with open("config.yaml", "r") as file:
     config = yaml.safe_load(file)
 
+from dotenv import load_dotenv
+load_dotenv()
+
 class LLMService:
 
     def __init__(self):
