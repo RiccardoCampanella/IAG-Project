@@ -165,8 +165,6 @@ class LLMService:
 
     
     def LLM_query(self, LLMQuery): # Returns the answer to a given prompt from the LLM
-        self.model = config['llm_mapper']['model_type'] 
-        self.model_temperature = config['model_specs']['temperature']
         if type(LLMQuery) != str: return "ERROR! LLMQuery should be a string"
         chat_completion = self.client.chat.completions.create(
         messages=[

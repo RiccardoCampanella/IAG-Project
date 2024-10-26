@@ -71,7 +71,7 @@ class FakeNewsAgent:
         self.ontology_service = ontology_service
         self.llm_service = llm_service
         self.analysis_results = {} 
-        self.current_news_item = "Running is good for your health" #"Eating spicy food causes hair loss" #TODO remove these variables when done with testing.
+        self.current_news_item = "Eating spicy food causes hair loss" #"Running is good for your health"  #TODO remove these variables when done with testing.
         self.state = AgentState.IDLE
         self.initialise_goals()
         self.hyperparameters = self.initialise_hyperparameters()
@@ -258,7 +258,7 @@ class FakeNewsAgent:
             try:
                 self.execute_state_action(next_state)
             except Exception as e:
-                logger.error(f"Error executing state {next_state}: {str(e)}")
+                self.logger.error(f"Error executing state {next_state}: {str(e)}")
                 #self.transition_to_state(AgentState.SELF_EVALUATION)
                 break
         
@@ -773,6 +773,7 @@ class FakeNewsAgent:
         """Gather information from both ontology and LLM."""
         self.logger.debug(f"gather_information, state : {self.state}")
         print("Gathering information")
+        ontology_results = []
 
         if self.ontology_service:
             query_arguments, target, forall = self.ontology_service.nlp_to_protege_query(self.current_news_item)
@@ -781,7 +782,7 @@ class FakeNewsAgent:
         
         llm_results = []
         trust = 1
-        if self.llm_service:
+        if self.llm_service != None:
             try:
                 llm_results, trust = self.llm_service.query(self.current_news_item)
             except Exception as e :

@@ -1,0 +1,115 @@
+{
+    "training_results": [
+        {
+            "epoch": 1,
+            "accuracy": [
+                1,
+                1
+            ],
+            "confidence": [
+                0.8,
+                0.6400000000000001
+            ],
+            "hyperparameters": {
+                "trust_ontology": 0.8,
+                "trust_llm": 0.8,
+                "trust_llm_vedant": 0.7
+            },
+            "avg_accuracy": 1.0,
+            "avg_confidence": 0.7200000000000001
+        },
+        {
+            "epoch": 2,
+            "accuracy": [
+                1,
+                1
+            ],
+            "confidence": [
+                0.6450909090909092,
+                0.6496000000000001
+            ],
+            "hyperparameters": {
+                "trust_ontology": 0.8,
+                "trust_llm": 0.8,
+                "trust_llm_vedant": 0.7
+            },
+            "avg_accuracy": 1.0,
+            "avg_confidence": 0.6473454545454547
+        },
+        {
+            "epoch": 3,
+            "accuracy": [
+                1,
+                1
+            ],
+            "confidence": [
+                0.7413793103448275,
+                0.9384
+            ],
+            "hyperparameters": {
+                "trust_ontology": 0.8,
+                "trust_llm": 0.8,
+                "trust_llm_vedant": 0.7
+            },
+            "avg_accuracy": 1.0,
+            "avg_confidence": 0.8398896551724138
+        },
+        {
+            "epoch": 4,
+            "accuracy": [
+                1,
+                1
+            ],
+            "confidence": [
+                0.94464,
+                0.9338666666666665
+            ],
+            "hyperparameters": {
+                "trust_ontology": 0.8,
+                "trust_llm": 0.8,
+                "trust_llm_vedant": 0.7
+            },
+            "avg_accuracy": 1.0,
+            "avg_confidence": 0.9392533333333333
+        },
+        {
+            "epoch": 5,
+            "accuracy": [
+                1,
+                1
+            ],
+            "confidence": [
+                0.8760000000000001,
+                0.8
+            ],
+            "hyperparameters": {
+                "trust_ontology": 0.8,
+                "trust_llm": 0.8,
+                "trust_llm_vedant": 0.7
+            },
+            "avg_accuracy": 1.0,
+            "avg_confidence": 0.8380000000000001
+        }
+    ],
+    "final_hyperparameters": {
+        "trust_ontology": 0.8,
+        "trust_llm": 0.8,
+        "trust_llm_vedant": 0.7
+    },
+    "test_metrics": {
+        "accuracy": [
+            1
+        ],
+        "confidence": [
+            0.8
+        ],
+        "true_positives": 0,
+        "false_positives": 0,
+        "true_negatives": 1,
+        "false_negatives": 0,
+        "final_accuracy": 1.0,
+        "avg_confidence": 0.8,
+        "precision": 0,
+        "recall": 0
+    }
+}
