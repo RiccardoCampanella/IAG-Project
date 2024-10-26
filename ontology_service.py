@@ -7,14 +7,19 @@ from functools import reduce
 import re
 from typing import List, Tuple, Optional, Dict, Any
 import requests
+import logging
 
 with open("config.yaml", "r") as file:
     config = yaml.safe_load(file)
 
-from dotenv import load_dotenv
-load_dotenv()
+# Initialising the Logger to kep track of the user Goal, Plans, States, Actions and eventul Errors
+logging.basicConfig(
+    level=logging.DEBUG,  # Set the logging level to DEBUG to capture all types of log messages
+    format='%(asctime)s - %(levelname)s - %(message)s',  # Specify the log message format
+    handlers=[logging.StreamHandler()]  # Output log messages to the console
+)
+logger = logging.getLogger(__name__)
 
-    
 class OntologyService:
     """Service for handling all LLM-related operations."""
 
@@ -104,18 +109,23 @@ class OntologyService:
             for datatype, argument in arguments:
                 if datatype == "class":
                     some_class = self.ontology.search_one(iri="*#" + argument)
+                    class_instances = None
+
                     if some_class is None:
-                        raise ValueError(f"Class not found in ontology: {argument}")
-                    class_instances = some_class.instances()
+                        logging.error(f"Class not found in ontology: {argument}")
+                    else:
+                        class_instances = some_class.instances()
+
                     if class_instances is None:
-                        raise ValueError(f"No instances found for class: {argument}")
-                    instances_list.append([str(x) for x in class_instances])
+                        logging.error(f"No instances found for class: {argument}")
+                    else:
+                        instances_list.append([str(x) for x in class_instances])
                 
                 elif datatype == "objectproperty":
                     property_name, property_value = argument
                     sublist = self.searchproperties(property_name, property_value)
                     if not sublist:  # If empty list or None
-                        raise ValueError(f"No instances found for property {property_name} with value {property_value}")
+                        logging.error(f"No instances found for property {property_name} with value {property_value}")
                     instances_list.append(sublist)
             
             # If no valid instances were found, return appropriate result
@@ -138,17 +148,17 @@ class OntologyService:
                 if forall_type == "class":
                     forall_class = self.ontology.search_one(iri="*#" + forall_arg)
                     if forall_class is None:
-                        raise ValueError(f"Universal quantifier class not found: {forall_arg}")
+                        logging.error(f"Universal quantifier class not found: {forall_arg}")
                     forall_instances = forall_class.instances()
                     if forall_instances is None:
-                        raise ValueError(f"No instances found for universal quantifier class: {forall_arg}")
+                        logging.error(f"No instances found for universal quantifier class: {forall_arg}")
                     return all(i in forall_instances for i in intersection)
                 
                 elif forall_type == "objectproperty":
                     property_name, property_value = forall_arg
                     object_list = self.searchproperties(property_name, property_value)
                     if object_list is None:
-                        raise ValueError(f"No instances found for universal quantifier property {property_name} with value {property_value}")
+                        logging.error(f"No instances found for universal quantifier property {property_name} with value {property_value}")
                     return all(i in object_list for i in intersection)
             
             # If no target or forall, return the intersection
@@ -171,7 +181,7 @@ class OntologyService:
                 return [result['instance']['value'] for result in dbpedia_results]
             print("No results from DB pedia")
             
-            raise  # Re-raise if no DBpedia results found
+            #raise  # Re-raise if no DBpedia results found
     
     def nlp_to_protege_query(self, natural_language_query):
         """Convert natural language queries into structured queries."""
@@ -359,7 +369,7 @@ class OntologyService:
         # query = "What sports are good for weight loss?"
         # response = generate_ontology_response(prompt_template.format(query=query))
         self.client = Groq(  # Initialize communication with the large language model
-        api_key=os.environ.get("GROQ_API_KEY"),
+        api_key=config['keys']['llm_api_key'],
         )
         self.model = config['model_specs']['model_type'] 
         self.model_temperature = config['model_specs']['temperature']

@@ -13,15 +13,11 @@ from scipy.sparse.csgraph import connected_components
 with open("config.yaml", "r") as file:
     config = yaml.safe_load(file)
 
-from dotenv import load_dotenv
-load_dotenv()
-
 class LLMService:
 
     def __init__(self):
-
         self.client = Groq(  # Initialize communication with the large language model
-        api_key=os.environ.get("GROQ_API_KEY"),
+        api_key=config['keys']['llm_api_key'],
         )
         self.model = config['model_specs']['model_type'] 
         self.model_temperature = config['model_specs']['temperature']
@@ -133,16 +129,8 @@ class LLMService:
     def query(self, current_news_item):
         self.statement = current_news_item
 
-        
-        for i in range(3):
-            self.get_LLM_queries()
-            self.get_LLM_arguments()
-            if self.lstLLMArguments != []: 
-                print(self.lstLLMQueries)
-                break
-
-
-
+        self.get_LLM_queries()
+        self.get_LLM_arguments()
         if self.showResults: 
             for i in self.lstLLMArguments:
                 print(i)
@@ -155,7 +143,6 @@ class LLMService:
         if self.showResults: 
             print([str(arg["boolCounterArgument"] == False) + " " + str(arg["score"]) for arg in args+counter_args])
             print(trust)
-        
         return args+counter_args, trust
     
     def get_trust(self, args):
@@ -177,6 +164,8 @@ class LLMService:
 
     
     def LLM_query(self, LLMQuery): # Returns the answer to a given prompt from the LLM
+        self.model = config['llm_mapper']['model_type'] 
+        self.model_temperature = config['model_specs']['temperature']
         if type(LLMQuery) != str: return "ERROR! LLMQuery should be a string"
         chat_completion = self.client.chat.completions.create(
         messages=[

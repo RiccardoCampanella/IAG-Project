@@ -5,17 +5,21 @@ import json
 from datetime import datetime
 import matplotlib.pyplot as plt
 import pandas as pd
-from baseline_agent import FakeNewsAgent  
-import pandas as pd
+from baseline_agent import OntologyService, LLMService, FakeNewsAgent  
 import numpy as np
 from sklearn.model_selection import train_test_split
 from typing import Tuple, List, Dict
 import requests
 import zipfile
-import os
+from groq import Groq
+import logging
+import yaml
+
+with open("config.yaml", "r") as file:
+    config = yaml.safe_load(file)
 
 class FakeNewsTrainer:
-    def __init__(self, training_data: List[Dict], test_data: List[Dict]):
+    def __init__(self, training_data: List[Dict]=None, test_data: List[Dict]=None):
         """
         Initialize the trainer with training and test datasets.
         
@@ -26,7 +30,22 @@ class FakeNewsTrainer:
         self.training_data = training_data
         self.test_data = test_data
         self.training_results = []
-        self.agent = FakeNewsAgent()
+        self.agent = FakeNewsAgent(OntologyService(), LLMService())
+
+        # Initialize Groq client
+        self.client = Groq(
+            api_key=config['keys']['llm_api_key'],
+        )
+        
+        # Set default config if none provided
+        default_config = {
+            'model_specs': {
+                'model_type': 'mixtral-8x7b-32768',  # or whatever model you prefer
+                'temperature': 0.2
+            }
+        }
+        self.config = config if config else default_config
+        self.model = self.config['model_specs']['model_type']
         
         # Setup logging
         logging.basicConfig(
@@ -135,7 +154,7 @@ class FakeNewsTrainer:
         return train_test_split(data, test_size=0.2, random_state=42)
 
     @staticmethod
-    def load_isot_dataset(data_dir: str = "datasets/isot") -> Tuple[List[Dict], List[Dict]]:
+    def load_isot_dataset(data_dir: str = "isot_news") -> Tuple[List[Dict], List[Dict]]:
         """
         Load ISOT Fake News Dataset
         Contains articles from legitimate and fake news websites
@@ -162,7 +181,7 @@ class FakeNewsTrainer:
         fake_df['is_true'] = False
         
         # Combine datasets
-        df = pd.concat([true_df, fake_df])
+        df = pd.concat([true_df, fake_df]).sample(n=3, random_state=42)
         
         # Convert to required format
         data = [
@@ -263,11 +282,59 @@ class FakeNewsTrainer:
         
         return test_metrics
 
+    def summarize_news_into_headline(self, text: str) -> str:
+        """
+        Summarize a news article text into a concise headline using Groq API.
+        
+        Args:
+            text (str): The full news article text to summarize
+        
+        Returns:
+            str: A concise headline summarizing the main point of the article
+        """
+        # Truncate text if too long (typical API limits)
+        max_length = 4000
+        if len(text) > max_length:
+            text = text[:max_length] + "..."
+        
+        # Create the prompt for headline generation
+        prompt = (
+            "Summarize the following news text into a concise, factual headline "
+            "of no more than 10 words. Capture the main point without any speculation.\n\n"
+            f"Text: {text}\n\n"
+            "Headline:"
+        )
+        
+        try:
+            # Create chat completion using Groq API
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[{
+                    "role": "user",
+                    "content": prompt
+                }],
+                temperature=0.2  # Lower temperature for more focused summaries
+            )
+            
+            # Extract and clean the generated headline
+            headline = response.choices[0].message.content.strip()
+            
+            # Remove any common prefixes that might have been generated
+            headline = headline.replace("Headline:", "").strip()
+            
+            logging.debug(f"Generated headline: {headline}")
+            return headline
+            
+        except Exception as e:
+            logging.error(f"Error generating headline: {str(e)}")
+            # Return a truncated version of the original text as fallback
+            return text[:100] + "..." if len(text) > 100 else text
+
     def _process_single_item(self, item: Dict) -> Dict:
         """
         Process a single news item through the agent.
         """
-        self.agent.current_news_item = item['text']
+        self.agent.current_news_item = self.summarize_news_into_headline(item['text'])
         self.agent.gather_information()
         self.agent.analyze_evidence()
         
@@ -345,6 +412,8 @@ class FakeNewsTrainer:
                 print("\nExample from ISOT dataset:")
                 print(isot_train[0])
 
+
+
                 fake_news_trainer = FakeNewsTrainer(isot_train, isot_test)
                 fake_news_trainer.train(epochs=5)
                 test_metrics = fake_news_trainer.evaluate()
@@ -415,4 +484,4 @@ class FakeNewsTrainer:
 if __name__ == "__main__":
         fake_news_trainer = FakeNewsTrainer()
         fake_news_trainer.evaluate_single_dataset()
-        fake_news_trainer.evaluate_multiple_datasets()
+        #fake_news_trainer.evaluate_multiple_datasets()
