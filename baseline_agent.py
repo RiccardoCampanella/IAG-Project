@@ -78,7 +78,7 @@ class FakeNewsAgent:
         self.ontology_service = ontology_service
         self.llm_service = llm_service
         self.analysis_results = argument_examples #TODO remove these variables when done with testing.
-        self.current_news_item = "Eating spicy food causes hair loss" #TODO remove these variables when done with testing.
+        self.current_news_item = "Running is good for your health" #"Eating spicy food causes hair loss" #TODO remove these variables when done with testing.
         self.state = AgentState.IDLE
         self.initialise_goals()
         self.hyperparameters = self.initialise_hyperparameters()
@@ -803,6 +803,7 @@ class FakeNewsAgent:
             "isTrue" : self.confidence > 0.5, # if the confidence in the statement is larger than 0.5. Then the statement is true
             "confidence_percentage" : abs((self.confidence - 0.5)* 2 * 100) # Turn confidence in percentage
         }
+        print(F"ANALYZE RESULT {self.analysis_results['reasoning_results']}")
         
     def formulate_recommendation(self) -> None:
         """Formulate a recommendation based on reasoning."""

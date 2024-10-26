@@ -4,7 +4,6 @@ import yaml
 from groq import Groq
 import os
 from functools import reduce
-import wikipediaapi
 import re
 from typing import List, Tuple, Optional, Dict, Any
 import requests
@@ -15,47 +14,6 @@ with open("config.yaml", "r") as file:
 from dotenv import load_dotenv
 load_dotenv()
 
-class WikipediaOntology:
-    """Backup ontology service using Wikipedia as a knowledge source."""
-    
-    def __init__(self):
-        #self.wiki = wikipediaapi.Wikipedia('en')
-        self.cache: Dict[str, Any] = {}
-    
-    def get_page_content(self, title: str) -> Optional[str]:
-        """Fetch Wikipedia page content with caching."""
-        if title in self.cache:
-            return self.cache[title]
-        
-        page = self.wiki.page(title)
-        if page.exists():
-            self.cache[title] = page.text
-            return page.text
-        return None
-    
-    def extract_relations(self, content: str, property_type: str) -> List[str]:
-        """Extract relevant relations from Wikipedia content."""
-        if not content:
-            return []
-            
-        # Define patterns based on property type
-        patterns = {
-            "class": r"is a|is an|are|belongs to|classified as",
-            "objectproperty": r"has|owns|contains|related to|connected with"
-        }
-        
-        pattern = patterns.get(property_type, "")
-        matches = re.finditer(pattern, content, re.IGNORECASE)
-        
-        relations = []
-        for match in matches:
-            # Extract surrounding context (50 characters before and after)
-            start = max(0, match.start() - 50)
-            end = min(len(content), match.end() + 50)
-            context = content[start:end]
-            relations.append(context)
-            
-        return relations
     
 class OntologyService:
     """Service for handling all LLM-related operations."""
@@ -65,8 +23,6 @@ class OntologyService:
         owlready2.JAVA_EXE = config['paths']['protege_path']
         self.path = config['paths']['ontology_local_path']
         self.ontology = get_ontology(self.path).load() # Load the ontology
-
-        self.wiki_ontology = WikipediaOntology()
         
         try:
             self.ontology = get_ontology(self.path).load()
@@ -83,37 +39,8 @@ class OntologyService:
         if not self.use_backup:
             return self._primary_query(arguments, target, forall)
         else:
-            return self._wiki_query(arguments, target, forall)
+            pass
     
-    def _wiki_query(self, arguments, target=None, forall=None) -> bool:
-        """Execute query using Wikipedia as knowledge source."""
-        results = []
-        
-        for datatype, argument in arguments:
-            if isinstance(argument, list):
-                # Handle property queries
-                subject, obj = argument
-                content = self.wiki_ontology.get_page_content(subject)
-                relations = self.wiki_ontology.extract_relations(content, "objectproperty")
-                
-                # Check if object is mentioned in relations
-                found = any(obj.lower() in rel.lower() for rel in relations)
-                results.append(found)
-            else:
-                # Handle class queries
-                content = self.wiki_ontology.get_page_content(argument)
-                if target:
-                    target_content = self.wiki_ontology.get_page_content(target)
-                    relations = self.wiki_ontology.extract_relations(target_content, "class")
-                    found = any(argument.lower() in rel.lower() for rel in relations)
-                    results.append(found)
-        
-        # If we have a target, all conditions must be True
-        if target or forall:
-            return all(results)
-        # Otherwise, return True if any condition is met
-        return any(results)
-        
     def _query_dbpedia(self, sparql_query):
         """
         Execute a SPARQL query on DBpedia.
@@ -242,6 +169,7 @@ class OntologyService:
             # If results are found from DBpedia, process them
             if dbpedia_results:
                 return [result['instance']['value'] for result in dbpedia_results]
+            print("No results from DB pedia")
             
             raise  # Re-raise if no DBpedia results found
     
@@ -443,7 +371,7 @@ class OntologyService:
                 model=config['model_specs']['model_type'],
                 messages=[{
                     "role": "user",
-                    "content": prompt+prompt_ontology_structure
+                    "content": prompt#+prompt_ontology_structure
                 }],
                 temperature=0.0  # Set to 0 for more consistent formatting
             )
