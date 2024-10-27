@@ -5,7 +5,7 @@ import json
 from datetime import datetime
 import matplotlib.pyplot as plt
 import pandas as pd
-from baseline_agent import OntologyService, LLMService, FakeNewsAgent  
+from expert_reasoner_agent import OntologyService, LLMService, FakeNewsAgent  
 import numpy as np
 from sklearn.model_selection import train_test_split
 from typing import Tuple, List, Dict
@@ -15,6 +15,9 @@ from groq import Groq
 import logging
 import yaml
 from datetime import datetime
+from tqdm import tqdm
+import seaborn as sns
+from sklearn.metrics import confusion_matrix
 
 with open("config.yaml", "r") as file:
     config = yaml.safe_load(file)
@@ -179,7 +182,7 @@ class FakeNewsTrainer:
         fake_df['is_true'] = False
         
         # Combine datasets
-        df = pd.concat([true_df, fake_df]).sample(n=3, random_state=42)
+        df = pd.concat([true_df, fake_df]).sample(n=10, random_state=42)
         
         # Convert to required format
         data = [
@@ -198,59 +201,89 @@ class FakeNewsTrainer:
         # Split into train/test
         return train_test_split(data, test_size=0.2, random_state=42)
 
-    def train(self, epochs: int = 5) -> None:
+    def train(self) -> None:
         """
-        Train the agent for specified number of epochs.
+        Train the agent on the training data once with progress bar.
         """
-        self.logger.info(f"Starting training for {epochs} epochs")
+        self.logger.info("Starting training")
         
-        for epoch in range(epochs):
-            self.logger.info(f"Epoch {epoch + 1}/{epochs}")
-            epoch_metrics = {
-                'epoch': epoch + 1,
-                'accuracy': [],
-                'confidence': [],
-                'hyperparameters': {}
-            }
-            
-            # Train on each item in training set
-            for item in self.training_data:
-                result = self._process_single_item(item)
-                epoch_metrics['accuracy'].append(
-                    1 if result['predicted'] == item['is_true'] else 0
-                )
-                epoch_metrics['confidence'].append(result['confidence'])
-            
-            # Record hyperparameters after training
-            epoch_metrics['hyperparameters'] = self.agent.hyperparameters.copy()
-            
-            # Calculate epoch statistics
-            epoch_metrics['avg_accuracy'] = sum(epoch_metrics['accuracy']) / len(epoch_metrics['accuracy'])
-            epoch_metrics['avg_confidence'] = sum(epoch_metrics['confidence']) / len(epoch_metrics['confidence'])
-            
-            self.training_results.append(epoch_metrics)
-            self.logger.info(f"Epoch {epoch + 1} - Accuracy: {epoch_metrics['avg_accuracy']:.3f}, "
-                        f"Confidence: {epoch_metrics['avg_confidence']:.3f}")
+        training_metrics = {
+            'accuracy': [],
+            'confidence': [],
+            'hyperparameters': {},
+            'predictions': [],
+            'true_labels': []
+        }
+        
+        # Train on each item in training set once with progress bar
+        for item in tqdm(self.training_data, desc="Training Progress"):
+            result = self._process_single_item(item)
+            training_metrics['accuracy'].append(
+                1 if result['predicted'] == item['is_true'] else 0
+            )
+            training_metrics['confidence'].append(result['confidence'])
+            training_metrics['predictions'].append(result['predicted'])
+            training_metrics['true_labels'].append(item['is_true'])
+        
+        # Record hyperparameters after training
+        training_metrics['hyperparameters'] = self.agent.hyperparameters.copy()
+        
+        # Calculate statistics
+        training_metrics['avg_accuracy'] = sum(training_metrics['accuracy']) / len(training_metrics['accuracy'])
+        training_metrics['avg_confidence'] = sum(training_metrics['confidence']) / len(training_metrics['confidence'])
+        
+        # Calculate confusion metrics
+        tn, fp, fn, tp = confusion_matrix(
+            training_metrics['true_labels'], 
+            training_metrics['predictions']
+        ).ravel()
+        
+        # Add fake news specific metrics
+        total = tp + tn + fp + fn
+        training_metrics.update({
+            'true_positive_rate': tp / (tp + fn) if (tp + fn) > 0 else 0,  # Detection rate
+            'false_positive_rate': fp / (fp + tn) if (fp + tn) > 0 else 0,  # False alarm rate
+            'false_negative_rate': fn / (fn + tp) if (fn + tp) > 0 else 0,  # Miss rate
+            'precision': tp / (tp + fp) if (tp + fp) > 0 else 0,  # When we say it's fake, how often are we right
+            'false_discovery_rate': fp / (fp + tp) if (fp + tp) > 0 else 0,  # When we say it's fake, how often are we wrong
+            'specificity': tn / (tn + fp) if (tn + fp) > 0 else 0,  # True negative rate
+            'balanced_accuracy': ((tp/(tp+fn) if (tp+fn) > 0 else 0) + (tn/(tn+fp) if (tn+fp) > 0 else 0)) / 2
+        })
+        
+        self.training_results.append(training_metrics)
+        self.logger.info(
+            f"Training completed:\n"
+            f"Accuracy: {training_metrics['avg_accuracy']:.3f}\n"
+            f"Balanced Accuracy: {training_metrics['balanced_accuracy']:.3f}\n"
+            f"False Alarm Rate: {training_metrics['false_positive_rate']:.3f}\n"
+            f"Miss Rate: {training_metrics['false_negative_rate']:.3f}"
+        )
 
     def evaluate(self) -> Dict:
         """
-        Evaluate the trained agent on test data.
+        Evaluate the trained agent on test data with progress bar.
         """
         self.logger.info("Starting evaluation on test set")
         
         test_metrics = {
             'accuracy': [],
             'confidence': [],
+            'predictions': [],
+            'true_labels': [],
             'true_positives': 0,
             'false_positives': 0,
             'true_negatives': 0,
             'false_negatives': 0
         }
         
-        for item in self.test_data:
+        for item in tqdm(self.test_data, desc="Evaluation Progress"):
             result = self._process_single_item(item)
             predicted = result['predicted']
             actual = item['is_true']
+            
+            # Store predictions and labels
+            test_metrics['predictions'].append(predicted)
+            test_metrics['true_labels'].append(actual)
             
             # Update metrics
             test_metrics['accuracy'].append(1 if predicted == actual else 0)
@@ -267,29 +300,106 @@ class FakeNewsTrainer:
                 test_metrics['true_negatives'] += 1
         
         # Calculate final metrics
-        # Calculate final_accuracy, handling division by zero
-        test_metrics['final_accuracy'] = (sum(test_metrics['accuracy']) / len(test_metrics['accuracy'])
-                                        if len(test_metrics['accuracy']) > 0 else 0)
-
-        # Calculate avg_confidence, handling division by zero
-        test_metrics['avg_confidence'] = (sum(test_metrics['confidence']) / len(test_metrics['confidence'])
-                                        if len(test_metrics['confidence']) > 0 else 0)
-
-        # Calculate precision, handling division by zero
-        precision_denominator = test_metrics['true_positives'] + test_metrics['false_positives']
-        test_metrics['precision'] = (test_metrics['true_positives'] / precision_denominator
-                                    if precision_denominator > 0 else 0)
-
-        # Calculate recall, handling division by zero
-        recall_denominator = test_metrics['true_positives'] + test_metrics['false_negatives']
-        test_metrics['recall'] = (test_metrics['true_positives'] / recall_denominator
-                                if recall_denominator > 0 else 0)
+        tp = test_metrics['true_positives']
+        tn = test_metrics['true_negatives']
+        fp = test_metrics['false_positives']
+        fn = test_metrics['false_negatives']
+        total = tp + tn + fp + fn
         
-        self.logger.info(f"Test Results - Accuracy: {test_metrics['final_accuracy']:.3f}, "
-                    f"Precision: {test_metrics['precision']:.3f}, "
-                    f"Recall: {test_metrics['recall']:.3f}")
+        test_metrics.update({
+            'final_accuracy': sum(test_metrics['accuracy']) / len(test_metrics['accuracy']),
+            'avg_confidence': sum(test_metrics['confidence']) / len(test_metrics['confidence']),
+            'true_positive_rate': tp / (tp + fn) if (tp + fn) > 0 else 0,
+            'false_positive_rate': fp / (fp + tn) if (fp + tn) > 0 else 0,
+            'false_negative_rate': fn / (fn + tp) if (fn + tp) > 0 else 0,
+            'precision': tp / (tp + fp) if (tp + fp) > 0 else 0,
+            'false_discovery_rate': fp / (fp + tp) if (fp + tp) > 0 else 0,
+            'specificity': tn / (tn + fp) if (tn + fp) > 0 else 0,
+            'balanced_accuracy': ((tp/(tp+fn) if (tp+fn) > 0 else 0) + (tn/(tn+fp) if (tn+fp) > 0 else 0)) / 2
+        })
+        
+        self.logger.info(
+            f"Test Results:\n"
+            f"Accuracy: {test_metrics['final_accuracy']:.3f}\n"
+            f"Balanced Accuracy: {test_metrics['balanced_accuracy']:.3f}\n"
+            f"False Alarm Rate: {test_metrics['false_positive_rate']:.3f}\n"
+            f"Miss Rate: {test_metrics['false_negative_rate']:.3f}"
+        )
         
         return test_metrics
+
+    def plot_training_progress(self) -> None:
+        """
+        Plot training metrics and confusion matrix.
+        """
+        if not self.training_results:
+            self.logger.warning("No training results to plot")
+            return
+        
+        latest_results = self.training_results[-1]
+        
+        # Create figure with subplots
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
+        
+        # Plot 1: Performance Metrics
+        metrics = ['Accuracy', 'Precision', 'True Positive Rate', 'Specificity']
+        values = [
+            latest_results['avg_accuracy'],
+            latest_results['precision'],
+            latest_results['true_positive_rate'],
+            latest_results['specificity']
+        ]
+        
+        ax1.bar(metrics, values, color=['blue', 'green', 'orange', 'red'])
+        ax1.set_ylim(0, 1.0)
+        ax1.set_title('Performance Metrics')
+        ax1.set_ylabel('Score')
+        ax1.tick_params(axis='x', rotation=45)
+        for i, v in enumerate(values):
+            ax1.text(i, v + 0.01, f'{v:.3f}', ha='center')
+        ax1.grid(True, axis='y')
+        
+        # Plot 2: Confusion Matrix
+        cm = confusion_matrix(
+            latest_results['true_labels'],
+            latest_results['predictions']
+        )
+        
+        sns.heatmap(
+            cm, 
+            annot=True, 
+            fmt='d', 
+            cmap='Blues',
+            xticklabels=['True News', 'Fake News'],
+            yticklabels=['True News', 'Fake News'],
+            ax=ax2
+        )
+        ax2.set_title('Confusion Matrix')
+        ax2.set_xlabel('Predicted')
+        ax2.set_ylabel('Actual')
+        
+        plt.tight_layout()
+        plt.show()
+        
+        # Additional plot for error analysis
+        plt.figure(figsize=(8, 6))
+        error_metrics = ['False Positive Rate', 'False Negative Rate', 'False Discovery Rate']
+        error_values = [
+            latest_results['false_positive_rate'],
+            latest_results['false_negative_rate'],
+            latest_results['false_discovery_rate']
+        ]
+        
+        plt.bar(error_metrics, error_values, color=['red', 'orange', 'brown'])
+        plt.ylim(0, 1.0)
+        plt.title('Error Analysis')
+        plt.ylabel('Rate')
+        plt.tick_params(axis='x', rotation=45)
+        for i, v in enumerate(error_values):
+            plt.text(i, v + 0.01, f'{v:.3f}', ha='center')
+        plt.grid(True, axis='y')
+        plt.tight_layout()
+        plt.show()
 
     def summarize_news_into_headline(self, text: str) -> str:
         """
@@ -354,24 +464,6 @@ class FakeNewsTrainer:
             'confidence': results.get('confidence_percentage', 0) / 100
         }
 
-    def plot_training_progress(self) -> None:
-        """
-        Plot training metrics over epochs.
-        """
-        epochs = range(1, len(self.training_results) + 1)
-        accuracies = [r['avg_accuracy'] for r in self.training_results]
-        confidences = [r['avg_confidence'] for r in self.training_results]
-        
-        plt.figure(figsize=(10, 6))
-        plt.plot(epochs, accuracies, 'b-', label='Accuracy')
-        plt.plot(epochs, confidences, 'r-', label='Confidence')
-        plt.xlabel('Epoch')
-        plt.ylabel('Score')
-        plt.title('Training Progress')
-        plt.legend()
-        plt.grid(True)
-        plt.show()
-
     def save_results(self, filename: str = None) -> None:
         """
         Save training results and final hyperparameters to file.
@@ -380,7 +472,7 @@ class FakeNewsTrainer:
             filename = f"training_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         
         results = {
-            'training_results': self.training_results,
+            'training_metrics': self.training_results[-1] if self.training_results else {},
             'final_hyperparameters': self.agent.hyperparameters,
             'test_metrics': self.evaluate()
         }
@@ -388,6 +480,64 @@ class FakeNewsTrainer:
         with open(filename, 'w') as f:
             json.dump(results, f, indent=4)
         self.logger.info(f"Results saved to {filename}")
+
+    def evaluate_multiple_datasets(self):
+        datasets = {
+            'LIAR': {
+                'loader': FakeNewsTrainer.load_liar_dataset,
+                'available': True
+            },
+            'FNID': {
+                'loader': FakeNewsTrainer.load_fnid_dataset,
+                'available': True
+            },
+            'ISOT': {
+                'loader': FakeNewsTrainer.load_isot_dataset,
+                'available': True
+            }
+        }
+
+        # Process each dataset
+        for dataset_name, dataset_info in datasets.items():
+            print(f"\nProcessing {dataset_name} dataset...")
+            
+            try:
+                # Load dataset
+                print(f"Loading {dataset_name} dataset...")
+                train_data, test_data = dataset_info['loader']()
+                print(f"{dataset_name} dataset: {len(train_data)} training samples, {len(test_data)} test samples")
+                
+                # Print example
+                print(f"\nExample from {dataset_name} dataset:")
+                print(train_data[0])
+                
+                # Initialize trainer and run training
+                print(f"\nTraining model on {dataset_name} dataset...")
+                fake_news_trainer = FakeNewsTrainer(train_data, test_data)
+                fake_news_trainer.train()
+                
+                # Evaluate and save results
+                test_metrics = fake_news_trainer.evaluate()
+                fake_news_trainer.plot_training_progress()
+                fake_news_trainer.save_results(f"{dataset_name}_results")
+                
+                print(f"\nCompleted training and evaluation on {dataset_name} dataset")
+                print("Test metrics:", test_metrics)
+            
+            except FileNotFoundError:
+                print(f"{dataset_name} dataset not available locally")
+                dataset_info['available'] = False
+                continue
+            
+            except Exception as e:
+                print(f"Error processing {dataset_name} dataset: {str(e)}")
+                continue
+
+        # Print summary of processed datasets
+        print("\nDataset Processing Summary:")
+        for dataset_name, dataset_info in datasets.items():
+            status = "Processed successfully" if dataset_info['available'] else "Not available"
+            print(f"{dataset_name}: {status}")
 
 
 
@@ -421,74 +571,15 @@ class FakeNewsTrainer:
                 print("\nExample from ISOT dataset:")
                 print(isot_train[0])
 
-
-
                 fake_news_trainer = FakeNewsTrainer(isot_train, isot_test)
-                fake_news_trainer.train(epochs=5)
-                test_metrics = fake_news_trainer.evaluate()
+                fake_news_trainer.train()
+
                 fake_news_trainer.plot_training_progress()
                 fake_news_trainer.save_results()
 
         except FileNotFoundError:
                 print("ISOT dataset not available locally")
 
-    def evaluate_multiple_datasets(self):
-        datasets = {
-                'LIAR': {
-                'loader': FakeNewsTrainer.load_liar_dataset,
-                'available': True
-                },
-                'FNID': {
-                'loader': FakeNewsTrainer.load_fnid_dataset,
-                'available': True
-                },
-                'ISOT': {
-                'loader': FakeNewsTrainer.load_isot_dataset,
-                'available': True
-                }
-        }
-
-        # Process each dataset
-        for dataset_name, dataset_info in datasets.items():
-                print(f"\nProcessing {dataset_name} dataset...")
-                
-                try:
-                        # Load dataset
-                        print(f"Loading {dataset_name} dataset...")
-                        train_data, test_data = dataset_info['loader']()
-                        print(f"{dataset_name} dataset: {len(train_data)} training samples, {len(test_data)} test samples")
-                        
-                        # Print example
-                        print(f"\nExample from {dataset_name} dataset:")
-                        print(train_data[0])
-                        
-                        # Initialize trainer and run training
-                        print(f"\nTraining model on {dataset_name} dataset...")
-                        fake_news_trainer = FakeNewsTrainer(train_data, test_data)
-                        fake_news_trainer.train(epochs=5)
-                        
-                        # Evaluate and save results
-                        test_metrics = fake_news_trainer.evaluate()
-                        fake_news_trainer.plot_training_progress()
-                        fake_news_trainer.save_results(dataset_name)  # Modified to include dataset name
-                        
-                        print(f"\nCompleted training and evaluation on {dataset_name} dataset")
-                        print("Test metrics:", test_metrics)
-                
-                except FileNotFoundError:
-                        print(f"{dataset_name} dataset not available locally")
-                        dataset_info['available'] = False
-                        continue
-        
-                except Exception as e:
-                        print(f"Error processing {dataset_name} dataset: {str(e)}")
-                        continue
-
-        # Print summary of processed datasets
-        print("\nDataset Processing Summary:")
-        for dataset_name, dataset_info in datasets.items():
-                status = "Processed successfully" if dataset_info['available'] else "Not available"
-                print(f"{dataset_name}: {status}")
 
     def setup_logger(self):
         """

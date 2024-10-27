@@ -1,0 +1,94 @@
+{
+    "training_metrics": {
+        "accuracy": [
+            0,
+            1,
+            0,
+            1,
+            1,
+            1,
+            0,
+            0
+        ],
+        "confidence": [
+            0.8,
+            0.9168000000000001,
+            0.9597333333333333,
+            0.6541176470588236,
+            0.6315789473684212,
+            0.9514666666666668,
+            0.9361066666666666,
+            0.9558
+        ],
+        "hyperparameters": {
+            "trust_ontology": 0.8,
+            "trust_llm": 0.8,
+            "trust_llm_vedant": 0.7
+        },
+        "predictions": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+        ],
+        "true_labels": [
+            true,
+            false,
+            true,
+            false,
+            false,
+            false,
+            true,
+            true
+        ],
+        "avg_accuracy": 0.5,
+        "avg_confidence": 0.8507004076367389,
+        "true_positive_rate": 0.0,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 1.0,
+        "precision": 0,
+        "false_discovery_rate": 0,
+        "specificity": 1.0,
+        "balanced_accuracy": 0.5
+    },
+    "final_hyperparameters": {
+        "trust_ontology": 0.8,
+        "trust_llm": 0.8,
+        "trust_llm_vedant": 0.7
+    },
+    "test_metrics": {
+        "accuracy": [
+            1,
+            1
+        ],
+        "confidence": [
+            0.940952380952381,
+            0.6400145185185185
+        ],
+        "predictions": [
+            false,
+            false
+        ],
+        "true_labels": [
+            false,
+            false
+        ],
+        "true_positives": 0,
+        "false_positives": 0,
+        "true_negatives": 2,
+        "false_negatives": 0,
+        "final_accuracy": 1.0,
+        "avg_confidence": 0.7904834497354498,
+        "true_positive_rate": 0,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 0,
+        "precision": 0,
+        "false_discovery_rate": 0,
+        "specificity": 1.0,
+        "balanced_accuracy": 0.5
+    }
+}

@@ -71,14 +71,12 @@ class FakeNewsAgent:
         self.ontology_service = ontology_service
         self.llm_service = llm_service
         self.analysis_results = {} 
-        self.current_news_item = "Eating spicy food causes hair loss" #"Running is good for your health"  #TODO remove these variables when done with testing.
+        self.current_news_item = "Eating spicy food causes hair loss" #"Running is good for your health" 
         self.state = AgentState.IDLE
         self.initialise_goals()
         self.hyperparameters = self.initialise_hyperparameters()
         self.agent_memory = self.subgoals.copy()
-        self.hyperparameters = self.initialise_hyperparameters()
         self.logger = self.setup_logger()
-        self.logger.info("FakeNewsTrainer initialized successfully") 
 
     def initialise_goals(self):
         """Initialize the main goal and subgoals with proper plans."""
@@ -125,7 +123,7 @@ class FakeNewsAgent:
             ),
             # Additional subgoals
             Goal(
-                description="Return to the Initial State",
+                description="Leran from Slef Evaluation",
                 conditions={AgentState.RECOMMENDATION_FORMULATION : AgentState.SELF_EVALUATION},
                 plan=Plan(steps=[AgentState.SELF_EVALUATION])
             ),
@@ -135,10 +133,10 @@ class FakeNewsAgent:
                 plan=Plan(steps=[AgentState.IDLE])
             ),
             Goal(
-                description="Mantain readiness to process new queries",
-                conditions = {AgentState.IDLE : AgentState.IDLE},
+                description="Await for user input",
+                conditions={AgentState.IDLE : AgentState.IDLE},
                 plan=Plan(steps=[AgentState.IDLE])
-            ) 
+            )
             }
             # Additional subgoals that can be integrated 
         """
@@ -735,7 +733,7 @@ class FakeNewsAgent:
         state_order = [state for state in AgentState]
         current_index = state_order.index(self.state)
         self.logger.info(f"following procedural_state_transition: State {current_index} to {current_index+1}")
-        if current_index < len(state_order) - 1:
+        while current_index < len(state_order) - 1 and current_index!=0:
             self.transition_to_state(state_order[current_index + 1]) # assume the plan list is ordered in sequential logical order
         else:
             self.logger.info(f"Completed procedural_state_transition: State {current_index}")
@@ -746,10 +744,38 @@ class FakeNewsAgent:
 
     ################################ Implementation of State-specific Actions ################################
 
-    def await_user(self) -> None:
-        if self.current_news_item != None: return 
-        statement = input("Enter news article...")
-        return
+    def await_user(self) -> None: 
+        # Display a list of sample news options for the user to prompt
+        sample_news = [
+            "Eating spicy food causes hair loss",
+            "Running is good for your health",
+            "Consuming sugary food helps with Diabetes Mellitus",
+            "Meditation improves mental health",
+            "Daily coffee boosts productivity",
+            "Skipping breakfast helps with weight loss",
+            "Smoking directly causes lung cancer in humans",
+            "Eating late at night disrupts morning metabolism",
+            "All humans need water to survive.",
+            "Ninety percent of diets fail within one year.",
+            "Vaccines prevent the spread of infectious diseases."
+            "Machines are becoming sentients."
+        ]
+        
+        print("Please choose a news article or enter your own:")
+        for i, news in enumerate(sample_news, 1):
+            print(f"{i}. {news}")
+        
+        # Allow the user to select a predefined headline or enter their own
+        choice = input("Enter the number of your choice or type a new headline: ")
+        
+        # Check if the input is a digit and corresponds to one of the options
+        if choice.isdigit() and 1 <= int(choice) <= len(sample_news):
+            self.current_news_item = sample_news[int(choice) - 1]
+        else:
+            # Use the user's custom input
+            self.current_news_item = choice
+        
+        print(f"Selected news article: {self.current_news_item}")
 
     def process_input(self) -> None:
         """Validate and process the input news item."""
@@ -758,16 +784,34 @@ class FakeNewsAgent:
         if not self.current_news_item:
             raise ValueError("No news item to process")
         
-        #required_fields = ['title', 'content', 'source']
-        #if not all(field in self.current_news_item for field in required_fields):
-        #    raise ValueError("Missing required fields in news item")
+        # Basic validation checks
+        if not isinstance(self.current_news_item, str):
+            raise ValueError("News item must be a string")
         
-        #self.analysis_results['processed_input'] = {
-        #    'title': self.current_news_item['title'],
-        #    'content_length': len(self.current_news_item['content']),
-        #    'source': self.current_news_item['source']
-        #}
-    
+        # Remove extra whitespace and check if empty
+        cleaned_text = self.current_news_item.strip()
+        if not cleaned_text:
+            raise ValueError("News item cannot be empty")
+        
+        try:
+            # 1. Check minimum and maximum word length
+            words = cleaned_text.split()
+            if len(words) < 3:
+                raise ValueError("Input is too short (minimum 3 words)")
+            if len(words) > 50:
+                raise ValueError("Input is too long (maximum 50 words)")
+            
+            # 2. Check if it ends with proper punctuation
+            if not cleaned_text[-1] in ['.', '!', '?']:
+                raise ValueError("Sentence must end with proper punctuation (., !, or ?)")
+            
+            # If all checks pass, update the current news item with cleaned version
+            self.current_news_item = cleaned_text
+            self.logger.info(f"Valid input processed: {self.current_news_item}")
+            
+        except Exception as e:
+            self.logger.error(f"Error processing input: {str(e)}")
+            raise ValueError(f"Invalid input: {str(e)}")
 
     def gather_information(self) -> None:
         """Gather information from both ontology and LLM."""
@@ -1144,36 +1188,30 @@ class FakeNewsAgent:
     def analyze_news_item(self) -> dict:
         """Main method to analyze a news item."""
         self.analysis_results = {}
-        
-        try:
-            self.transition_to_state(AgentState.INPUT_PROCESSING)
-            # iterate over states and stop at the end of the cycle
-            while self.state != AgentState.IDLE:
-                next_state = self.identify_next_state()
-                self.transition_to_state(next_state)
 
+        try:
+            while (next_state:=self.identify_next_state()) != AgentState.IDLE:
                 # get active goals
                 active_goals = self.get_active_goals()
                 
-                # re-initialise goals in case of fail
-                if not active_goals:
-                    # end of the cycle 
-                    if self.state == AgentState.SELF_EVALUATION:
-                        self.transition_to_state(AgentState.IDLE)
-                    """
-                    # automated plan rules failed, procedural state generation
-                    else:
-                        self.procedural_state_transition()
-                    """
+                # if in self evaluation, transition to IDLE
+                if not active_goals and self.state == AgentState.SELF_EVALUATION:
+                    self.transition_to_state(AgentState.IDLE)
+                    break
                 
                 # pursue goal
                 self.adopt_active_goals()
-            
+
+                next_state = self.identify_next_state()
+
+                self.transition_to_state(next_state)
+
             return self.analysis_results
             
         except Exception as e:
             self.logger.error(f"Error analyzing news item: {str(e)}")
-            self.transition_to_state(AgentState.SELF_EVALUATION)
+            # when automated plan rules fail, fallback to procedural state transition
+            self.procedural_state_transition()
             raise
 
 if __name__ == '__main__':
