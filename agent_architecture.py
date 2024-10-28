@@ -5,6 +5,7 @@ from groq import Groq
 import os
 from functools import reduce
 
+# This is a previous version of the agent, Please Ignore
 
 # Load the config.yaml file
 with open("config.yaml", "r") as file:
