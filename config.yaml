@@ -1,6 +1,6 @@
 # Api Keys
 keys:
-  llm_api_key : "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"
+  llm_api_key : ""
 
 # Paths
 paths : 
