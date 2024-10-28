@@ -722,7 +722,6 @@ class FakeNewsAgent:
             "Eating late at night disrupts morning metabolism",
             "All humans need water to survive.",
             "Ninety percent of diets fail within one year.",
-            "Vaccines prevent the spread of infectious diseases."
             "Machines are becoming sentients."
         ]
         
@@ -1182,4 +1181,3 @@ class FakeNewsAgent:
 if __name__ == '__main__':
     FNA = FakeNewsAgent(OntologyService(), LLMService())
     recommendation = FNA.analyze_news_item()
-    print(recommendation['final_output'])

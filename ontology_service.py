@@ -21,6 +21,7 @@ class OntologyService:
         owlready2.JAVA_EXE = config['paths']['protege_path']
         self.path = config['paths']['ontology_local_path']
         self.ontology = get_ontology(self.path).load() # Load the ontology
+        self.logger = self.setup_logger()
         
         try:
             self.ontology = get_ontology(self.path).load()
@@ -466,5 +467,41 @@ class OntologyService:
                 for sub, obj in ontoproperty.get_relations():
                     if sub == instance and obj == ontoinstance:
                         objectlist.append(instance)
+    
+    def setup_logger(self):
+        """
+        Configure logging to write to a file with date-based naming.
+        Suppresses terminal output while maintaining detailed logging in files.
+        """
+        # Create logs directory if it doesn't exist
+        log_dir = 'logs'
+        os.makedirs(log_dir, exist_ok=True)
+        
+        # Create a date-based log filename
+        current_date = datetime.now().strftime('%Y-%m-%d')
+        log_filename = os.path.join(log_dir, f'ontology_service_{current_date}.log')
+        
+        # Create a logger instance
+        logger = logging.getLogger('FakeNewsTrainer')
+        logger.setLevel(logging.INFO)
+        
+        # Create file handler
+        file_handler = logging.FileHandler(log_filename, mode='a', encoding='utf-8')
+        file_handler.setLevel(logging.INFO)
+        
+        # Create formatter
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        file_handler.setFormatter(formatter)
+        
+        # Clear any existing handlers
+        logger.handlers = []
+        
+        # Add the file handler to the logger
+        logger.addHandler(file_handler)
+        
+        # Prevent propagation to root logger
+        logger.propagate = False
+        
+        return logger
         
         return objectlist

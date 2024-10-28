@@ -542,11 +542,10 @@ def plot_test_metrics(metrics_data):
         plt.tight_layout()
         plt.show()
 
-with open("training_results_20241027_211454.json", "r") as file:
-    metrics_data = json.load(file)
+#with open("training_results_20241027_211454.json", "r") as file:
+    #metrics_data = json.load(file)
     #plot_test_metrics(metrics_data)
 
 if __name__ == "__main__":
         fake_news_trainer = FakeNewsTrainer()
         fake_news_trainer.evaluate_single_dataset()
-        #fake_news_trainer.evaluate_multiple_datasets()
