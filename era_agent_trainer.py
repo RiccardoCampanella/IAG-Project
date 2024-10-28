@@ -52,108 +52,6 @@ class FakeNewsTrainer:
         self.config = config if config else default_config
         self.model = self.config['model_specs']['model_type']
 
-        
-
-    @staticmethod
-    def load_liar_dataset(data_dir: str = "datasets/liar") -> Tuple[List[Dict], List[Dict]]:
-        """
-        Load LIAR dataset (Wang, 2017)
-        Contains 12.8K human-labeled short statements from politifact.com
-        
-        Args:
-            data_dir: Directory where the dataset is stored
-        Returns:
-            Tuple of (training_data, test_data)
-        """
-        # Ensure directory exists
-        os.makedirs(data_dir, exist_ok=True)
-        
-        # Download if not present
-        train_file = f"{data_dir}/train.tsv"
-        test_file = f"{data_dir}/test.tsv"
-        
-        if not (os.path.exists(train_file) and os.path.exists(test_file)):
-            print("Downloading LIAR dataset...")
-            url = "https://www.cs.ucsb.edu/~william/data/liar_dataset.zip"
-            response = requests.get(url)
-            zip_path = f"{data_dir}/liar_dataset.zip"
-            with open(zip_path, 'wb') as f:
-                f.write(response.content)
-            
-            # Extract
-            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-                zip_ref.extractall(data_dir)
-        
-        # Load data
-        columns = ['id', 'label', 'statement', 'subject', 'speaker', 'job_title', 'state_info', 
-                  'party_affiliation', 'barely_true_counts', 'false_counts', 'half_true_counts', 
-                  'mostly_true_counts', 'pants_on_fire_counts', 'context']
-        
-        train_df = pd.read_csv(train_file, sep='\t', names=columns)
-        test_df = pd.read_csv(test_file, sep='\t', names=columns)
-        
-        # Convert to binary labels (True/False)
-        def binarize_label(label: str) -> bool:
-            return label in ['true', 'mostly-true', 'half-true']
-        
-        # Convert to required format
-        def convert_to_format(df: pd.DataFrame) -> List[Dict]:
-            return [
-                {
-                    'text': row['statement'],
-                    'is_true': binarize_label(row['label']),
-                    'metadata': {
-                        'speaker': row['speaker'],
-                        'context': row['context'],
-                        'subject': row['subject']
-                    }
-                }
-                for _, row in df.iterrows()
-            ]
-        
-        return convert_to_format(train_df), convert_to_format(test_df)
-
-    @staticmethod
-    def load_fnid_dataset(data_dir: str = "datasets/fnid") -> Tuple[List[Dict], List[Dict]]:
-        """
-        Load Fake News Inference Dataset (FNID)
-        Contains news articles with stance and inference labels
-        
-        Args:
-            data_dir: Directory where the dataset is stored
-        Returns:
-            Tuple of (training_data, test_data)
-        """
-        # Download if not present
-        os.makedirs(data_dir, exist_ok=True)
-        dataset_file = f"{data_dir}/fnid_dataset.csv"
-        
-        if not os.path.exists(dataset_file):
-            print("Downloading FNID dataset...")
-            url = "https://raw.githubusercontent.com/MickeysClubhouse/COVID-19-FNID/master/FNID_dataset.csv"
-            response = requests.get(url)
-            with open(dataset_file, 'w', encoding='utf-8') as f:
-                f.write(response.text)
-        
-        # Load data
-        df = pd.read_csv(dataset_file)
-        
-        # Convert to required format
-        data = [
-            {
-                'text': row['text'],
-                'is_true': row['label'] == 1,
-                'metadata': {
-                    'source': row['source'],
-                    'date': row['date']
-                }
-            }
-            for _, row in df.iterrows()
-        ]
-        
-        # Split into train/test
-        return train_test_split(data, test_size=0.2, random_state=42)
-
     @staticmethod
     def load_isot_dataset(data_dir: str = "isot_news") -> Tuple[List[Dict], List[Dict]]:
         """
@@ -182,7 +80,7 @@ class FakeNewsTrainer:
         fake_df['is_true'] = False
         
         # Combine datasets
-        df = pd.concat([true_df, fake_df]).sample(n=10, random_state=42)
+        df = pd.concat([true_df, fake_df]).sample(n=5, random_state=42)
         
         # Convert to required format
         data = [
@@ -481,65 +379,6 @@ class FakeNewsTrainer:
             json.dump(results, f, indent=4)
         self.logger.info(f"Results saved to {filename}")
 
-    def evaluate_multiple_datasets(self):
-        datasets = {
-            'LIAR': {
-                'loader': FakeNewsTrainer.load_liar_dataset,
-                'available': True
-            },
-            'FNID': {
-                'loader': FakeNewsTrainer.load_fnid_dataset,
-                'available': True
-            },
-            'ISOT': {
-                'loader': FakeNewsTrainer.load_isot_dataset,
-                'available': True
-            }
-        }
-
-        # Process each dataset
-        for dataset_name, dataset_info in datasets.items():
-            print(f"\nProcessing {dataset_name} dataset...")
-            
-            try:
-                # Load dataset
-                print(f"Loading {dataset_name} dataset...")
-                train_data, test_data = dataset_info['loader']()
-                print(f"{dataset_name} dataset: {len(train_data)} training samples, {len(test_data)} test samples")
-                
-                # Print example
-                print(f"\nExample from {dataset_name} dataset:")
-                print(train_data[0])
-                
-                # Initialize trainer and run training
-                print(f"\nTraining model on {dataset_name} dataset...")
-                fake_news_trainer = FakeNewsTrainer(train_data, test_data)
-                fake_news_trainer.train()
-                
-                # Evaluate and save results
-                test_metrics = fake_news_trainer.evaluate()
-                fake_news_trainer.plot_training_progress()
-                fake_news_trainer.save_results(f"{dataset_name}_results")
-                
-                print(f"\nCompleted training and evaluation on {dataset_name} dataset")
-                print("Test metrics:", test_metrics)
-            
-            except FileNotFoundError:
-                print(f"{dataset_name} dataset not available locally")
-                dataset_info['available'] = False
-                continue
-            
-            except Exception as e:
-                print(f"Error processing {dataset_name} dataset: {str(e)}")
-                continue
-
-        # Print summary of processed datasets
-        print("\nDataset Processing Summary:")
-        for dataset_name, dataset_info in datasets.items():
-            status = "Processed successfully" if dataset_info['available'] else "Not available"
-            print(f"{dataset_name}: {status}")
-
-
 
     def evaluate_single_dataset(self):
         # Load LIAR dataset
@@ -616,6 +455,96 @@ class FakeNewsTrainer:
         logger.propagate = False
         
         return logger
+    
+# Setting up seaborn theme for better readability
+sns.set_theme()
+
+def plot_test_metrics(metrics_data):
+    """
+    Plot test metrics, confusion matrix, error analysis, and confidence over time from JSON data.
+    """
+    # Extract test metrics data
+    test_metrics = metrics_data.get("test_metrics")
+    if not test_metrics:
+        print("No test metrics available to plot.")
+        return
+    
+    # Test performance metrics
+    final_accuracy = test_metrics.get("final_accuracy", 0)
+    precision = test_metrics.get("precision", 0)
+    true_positive_rate = test_metrics.get("true_positive_rate", 0)
+    specificity = test_metrics.get("specificity", 0)
+    false_positive_rate = test_metrics.get("false_positive_rate", 0)
+    false_negative_rate = test_metrics.get("false_negative_rate", 0)
+    false_discovery_rate = test_metrics.get("false_discovery_rate", 0)
+    
+    # Create figure with subplots
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
+    
+    # Plot 1: Performance Metrics
+    metrics = ['Accuracy', 'Precision', 'True Positive Rate', 'Specificity']
+    values = [final_accuracy, precision, true_positive_rate, specificity]
+    ax1.bar(metrics, values, color=['blue', 'green', 'orange', 'red'])
+    ax1.set_ylim(0, 1.0)
+    ax1.set_title('Test Performance Metrics')
+    ax1.set_ylabel('Score')
+    ax1.tick_params(axis='x', rotation=45)
+    for i, v in enumerate(values):
+        ax1.text(i, v + 0.01, f'{v:.3f}', ha='center')
+    ax1.grid(True, axis='y')
+    
+    # Plot 2: Confusion Matrix
+    true_labels = test_metrics.get("true_labels", [])
+    predictions = test_metrics.get("predictions", [])
+    if true_labels and predictions:
+        cm = confusion_matrix(true_labels, predictions)
+        sns.heatmap(
+            cm, 
+            annot=True, 
+            fmt='d', 
+            cmap='Blues',
+            xticklabels=['True', 'False'],
+            yticklabels=['True', 'False'],
+            ax=ax2
+        )
+        ax2.set_title('Test Confusion Matrix')
+        ax2.set_xlabel('Predicted')
+        ax2.set_ylabel('Actual')
+    
+    plt.tight_layout()
+    plt.show()
+    
+    # Additional plot for Error Analysis
+    plt.figure(figsize=(8, 6))
+    error_metrics = ['False Positive Rate', 'False Negative Rate', 'False Discovery Rate']
+    error_values = [false_positive_rate, false_negative_rate, false_discovery_rate]
+    plt.bar(error_metrics, error_values, color=['red', 'orange', 'brown'])
+    plt.ylim(0, 1.0)
+    plt.title('Test Error Analysis')
+    plt.ylabel('Rate')
+    plt.tick_params(axis='x', rotation=45)
+    for i, v in enumerate(error_values):
+        plt.text(i, v + 0.01, f'{v:.3f}', ha='center')
+    plt.grid(True, axis='y')
+    plt.tight_layout()
+    plt.show()
+
+    # Confidence Over Time Plot
+    confidence_scores = test_metrics.get("confidence", [])
+    if confidence_scores:
+        plt.figure(figsize=(10, 6))
+        plt.plot(range(len(confidence_scores)), confidence_scores, color="purple", marker="o")
+        plt.title("Test Confidence Over Time")
+        plt.xlabel("Iteration")
+        plt.ylabel("Confidence Score")
+        plt.ylim(0, 1.0)
+        plt.grid(True)
+        plt.tight_layout()
+        plt.show()
+
+with open("training_results_20241027_211454.json", "r") as file:
+    metrics_data = json.load(file)
+    #plot_test_metrics(metrics_data)
 
 if __name__ == "__main__":
         fake_news_trainer = FakeNewsTrainer()

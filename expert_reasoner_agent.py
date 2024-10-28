@@ -139,42 +139,7 @@ class FakeNewsAgent:
             )
             }
             # Additional subgoals that can be integrated 
-        """
-        Goal(
-            description="Compute Trust and Confidence Score",
-            conditions={AgentState.EVIDENCE_ANALYSIS : AgentState.REASONING},
-            plan=Plan(steps=[AgentState.REASONING])
-            ),
-        Goal(
-            description="Accurately interpret and classify user input",
-            conditions = {}, # include all the states if the goal is adopted from any prior, current 
-            plan=Plan(steps=[AgentState.INPUT_PROCESSING])
-        ),
-        Goal(
-            description="Achieve a state of informed decision-making for the user regarding the factual accuracy of the query",
-            conditions = {}, # adopted from any prior, current
-            plan=Plan(steps=[AgentState.REASONING])
-        ),
-        Goal(
-            description="Test if sufficient information has been gathered before proceeding to analysis",
-            conditions = {}, # adopted from any prior, current
-            plan=Plan(steps=[AgentState.INFORMATION_GATHERING])
-        ),
-        Goal(
-            description="Test the reliability and completeness of the fact-check",
-            conditions = {}, # adopted from any prior, current
-            plan=Plan(steps=[AgentState.SELF_EVALUATION])
-        ),
-        Goal(
-            description="Improve fact-checking strategies based on experience",
-            conditions = {}, # adopted from any prior, current
-            plan=Plan(steps=[AgentState.LEARNING])
-        ),
-        Goal(
-            description="Manage and recover from errors in the fact-checking process",
-            conditions = {}, # adopted from any prior, current
-            plan=Plan(steps=[AgentState.ERROR])
-        ),"""
+       
        
     # transitioning once the prior state conditions are satisfied 
     def transition_to_state(self, new_state: AgentState) -> None:
